@@ -1,0 +1,17 @@
+site_name: Exist developers
+site_url: http://developer.exist.io/
+
+theme:
+  name: material
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions: 
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true 
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
