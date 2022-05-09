@@ -15,3 +15,34 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - "Welcome": index.md
+  - "Guide": 
+    - "Getting started": guide/index.md
+    - "Reading your data": guide/read_client.md
+    - "Writing new data": guide/write_client.md
+    - "Considerations": guide/considerations.md
+    - "Support": guide/support.md
+  - "Reference": 
+    - "Important values": reference/important_values.md
+    - "Object types and terminology": reference/object_types.md
+    - "Authentication": 
+      - "Overview": reference/authentication/index.md
+      - "Token authenticaton": reference/authentication/token.md
+      - "OAuth2 authentication": reference/authentication/oauth2.md
+    - "Reading data":
+      - "Attributes": reference/attributes.md
+      - "Correlations": reference/correlations.md
+      - "Insights": reference/insights.md
+      - "Averages": reference/averages.md
+      - "Users": reference/users.md
+    - "Writing data":  
+      - "Attribute ownership": reference/attribute_ownership.md
+      - "Updating values": reference/writing_data.md
+    - "Changelog": reference/changelog.md

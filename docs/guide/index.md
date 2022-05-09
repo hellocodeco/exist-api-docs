@@ -2,19 +2,14 @@
 title: Getting started
 ---
 
+Hello! This guide will help you to become familiar with what's required to read and write your Exist data. We expect you to already be familiar with programming, HTTP requests and responses, and JSON data. Example code will use Python.
 
-The API lives at `https://exist.io/api/1/`. All requests must use HTTPS.
+So firstly, the API lives at `https://exist.io/api/2/`. All requests must use HTTPS.
 
-POST bodies can be sent as `application/json`, `application/x-www-form-urlencoded`, or `multipart/form-data`.
-However the API will only return JSON.
+Your POST bodies can be sent as JSON (`application/json`) or form data (`application/x-www-form-urlencoded` or `multipart/form-data`). However the API will only return JSON.
 
-Requests are currently rate-limited at 300/hr per user token. Given user data does not change frequently within
-an hourly period (if at all) this should be more than adequate.
+Requests are currently rate-limited at 300/hr per user token. If you send more than 300 requests in a single 60-minute period, you'll get hit with a `429 Too Many Requests` rate-limiting response. This means you're going too hard, and you need to ease off our poor servers.
 
+We have a few different methods of authenticating your requests so you can read and write data. We'll start with simple token authentication, which is read-only, and take a look at how to read your data. Read on!
 
-OAuth2 is the main means of authorising requests to the API, but if you're building a personal read-only client you might like to use simple token auth.
-[Read the authentication overview](#authentication-overview) to see which one you need.
-
-To get stuck in and retrieve some personal data, you should start by [creating a new client app](https://exist.io/account/apps/),
-then [get today's overview](#get-current-overview-for-user).
-
+[Part one: reading data :material-arrow-right:](/guide/read_client/)

@@ -150,16 +150,16 @@ the other, and we ask that you do the same. **Correlation is not causation**.
 There may be many hidden factors which underlie the relationship between two attributes. It is up to the user to
 determine the cause.
 
-Correlations are generated weekly, so past values are also available in order to chart their changing strength.
+Correlations are generated weekly.
 
 ### Examples
 
-**"You are moderately more likely (55%) to be productive when you listen to music."**
+**"You are more productive when you listen to music more."**
 
 In this case the value is 0.55, and this is a positive correlation — when one value (*tracks played*) increases,
 so does the other (*time spent productively*).
 
-**"You are somewhat less likely (25%) to be active when it's warmer in the day."**
+**"You are less active when it's a warmer day."**
 
 In this case the value is -0.25, and this is a negative correlation — when one value (*max temp*) increases,
 the other decreases (*time active*).
@@ -195,11 +195,11 @@ Insights are interesting events found within the user's data. These are not trig
 
 Insights have a priority where `1` is highest and means real-time, `2` is day-level, `3` is week, and `4` is month.
 
-HTML output is provided, however each insight could be assembled from the value fields and knowledge of the insight type, if required.
+HTML and text output is provided.
 
 ### Examples
 
-**Thursday marks a new productivity streak!** Beat your goal every day for 3 days
+> **Thursday marks a new productivity streak!**<br/>Beat your goal every day for 3 days
 
 ## Averages
 ```json
@@ -226,11 +226,13 @@ Note: these are actually medians, but we use "average" as it's simpler to explai
 We use **client** to refer an application with OAuth2 client credentials. A client which writes data to attributes is termed a **service**. 
 
 
-## List of attributes
+## List of attribute templates
 
-All attributes we currently support. The group an attribute belongs to may change in future, but attribute names should be considered stable.
+All the "official" attributes we currently support. Templated attributes are treated differently because we "understand" them — they receive their own insights, individual wording for correlations, and so on. You should prefer them over custom attributes where possible. 
 
-Remember all data should be sent, and is stored and returned, in metric units. Imperial conversion should occur when rendering as required.
+The group an attribute belongs to may change in future, but attribute names should be considered stable.
+
+Remember all data must be sent, and is stored and returned, in metric units. Imperial conversion should occur when rendering as required.
 
 See [attribute definition](#attributes).
 
@@ -310,8 +312,7 @@ Name                | Group        | Value type description         | Value type
 `weather_wind_speed`    | Weather  | Float (km/hr)                  | `1`
 `weather_summary`       | Weather  | String                         | `2`
 `weather_icon`          | Weather  | String (name of icon best representing weather values) | `2`
-`sunrise`               | Weather  | Time of day (minutes from midnight as integer) | `4`
-`sunset`                | Weather  | Time of day (minutes from midday as integer) | `6`
+`day_length`               | Weather  | Period (minutes as integer) | `3`
 
 ## Attribute value types
 
@@ -324,7 +325,7 @@ Float                          | `1`
 String                         | `2`
 Period (minutes as integer)    | `3`
 Time of day (minutes from midnight as integer) | `4`
-Float (percentage, 0.0 to 1.0) | `5`
+Percentage (float, 0.0 to 1.0) | `5`
 Time of day (minutes from midday as integer) | `6`
 Boolean                        | `7`
 Scale (1-9 as integer)		   | `8`
