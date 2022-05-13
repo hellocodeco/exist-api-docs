@@ -3,6 +3,13 @@ site_url: http://developer.exist.io/
 
 theme:
   name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+  logo: assets/logo.png
 extra_css:
   - stylesheets/extra.css
 markdown_extensions: 

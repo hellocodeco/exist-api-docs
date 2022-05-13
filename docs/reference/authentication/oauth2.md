@@ -7,13 +7,13 @@ title: OAuth2 authentication
 All endpoints require authentication, except those that are part of the OAuth2 authorisation flow.
 Make sure your access token is included in your requests by including the `Authorization: Bearer` header with every request.
 
-You may mix and match OAuth2 authentication with simple token or even session-based authentication as you test the API. API endpoints will respond with JSON within your browser
-if you are logged in to the site.
+You may mix and match OAuth2 authentication with simple token or even session-based authentication as you test the API. API endpoints will respond with JSON within your browser if you are logged in to the site.
+
+Remember you need to create an OAuth2 client in Exist to use this method. OAuth2 clients can be created by all users. You can create one from your [app management page](https://exist.io/account/apps/) within your Exist account. Make a note of your client's credentials as you'll need them to authorise users.
 
 ### Scopes
 
-Request as few scopes as required to provide your necessary functionality. Only attributes that match
-the scope (that is, are in the groups you're allowed to read or write, or are manual) will be accessible.
+Be responsible and request as few scopes as required to provide your necessary functionality. Only attributes that match the scope (that is, are in the groups you're allowed to read or write, or are manual) will be accessible. For example, if you request the contents of the `mood` group, but you only have `activity_read` scope, you will receive an empty list.
 
 **Read scopes** allow you to *retrieve attributes and their values* for those that match the scope.
 
@@ -60,20 +60,20 @@ the scope (that is, are in the groups you're allowed to read or write, or are ma
 The OAuth2 authorisation flow is vastly simpler than the original OAuth 1.0:
 
 1. Send your user to the "request authorisation" page at `/oauth2/authorize` with these parameters:
-  *  `response_type=code` to request an auth code in return   
-  *  `redirect_uri` with the URI to which Exist returns the user (**must be HTTPS**)
-  *  `scope=scope1+scope2` with the list of scopes you're asking for
-  *  `client_id` which is your OAuth2 client ID
-2. User authorises your application within the requested scopes (by hitting 'Allow' in the browser)
+    *  `response_type=code` to request an auth code in return   
+    *  `redirect_uri` with the URI to which Exist returns the user (**must be HTTPS**)
+    *  `scope=scope1+scope2` with the list of scopes you're asking for
+    *  `client_id` which is your OAuth2 client ID
+2. User views the details of your client and its requested scopes, then authorises your application with the requested scopes (by hitting 'Allow' in the browser)
 3. Exist returns the user to your `redirect_uri` (GET request) with the following:
-  *  `code` parameter upon success
-  *  `error` parameter if the user didn't authorise your client, or any other error with your request
+    *  `code` parameter upon success
+    *  `error` parameter if the user didn't authorise your client, or any other error with your request
 4. Exchange this code for an access token by POSTing to `/oauth2/access_token` these parameters:
-  *  `grant_type=authorization_code`
-  *  `code` with the code you just received
-  *  `client_id` with your OAuth2 client ID
-  *  `client_secret` with your OAuth2 client secret
-  *  `redirect_uri` with the URI you used earlier
+    *  `grant_type=authorization_code`
+    *  `code` with the code you just received
+    *  `client_id` with your OAuth2 client ID
+    *  `client_secret` with your OAuth2 client secret
+    *  `redirect_uri` with the URI you used earlier
 5. If successful you will receive a JSON object with an `access_token`, `refresh_token`, `token_type`, `scope`, and `expires_in` time in seconds. 
 
 #### Code example
@@ -198,8 +198,7 @@ Sign all authenticated requests by adding the Authorization header, `Authorizati
 
     ```shell
     # With curl, you can just pass the correct header with each request
-    curl "api_endpoint_here"
-    -H "Authorization: Bearer 96524c5ca126d87eb18ee7eff408ca0e71e94737"
+    curl "api_endpoint_here" -H "Authorization: Bearer 96524c5ca126d87eb18ee7eff408ca0e71e94737"
     ```
 
 === "Python"

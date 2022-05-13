@@ -12,30 +12,29 @@ If you are logged in to Exist in the browser your session-based authentication w
 
 ### Requesting a token 
 
+Exchange your user credentials for a token. This token will not change or expire by design but may be deprecated in the future.
 
-```shell
-
-curl https://exist.io/api/1/auth/simple-token/ -d username=bobby_tables -d password=existrulz123
-```
-
-```python
-import requests
-
-requests.post('https://exist.io/api/1/auth/simple-token/',
-    {'username':'bobby_tables','password':'existrulz123'})
-```
-
-> Returns a token object in JSON:
-
-```json
-{ "token": "96524c5ca126d87eb18ee7eff408ca0e71e94737" }
-```
-
-Exchange your user credentials for a token. This token will not change or expire by design but may be deprecated as we move to OAuth2 in the future.
 
 #### Request
 
 `POST /api/1/auth/simple-token/`
+
+=== "Shell"
+
+    ```shell
+
+    curl https://exist.io/api/1/auth/simple-token/ -d username=bobby_tables -d password=existrulz123
+    ```
+
+=== "Python"
+
+    ```python
+    import requests
+
+    requests.post('https://exist.io/api/1/auth/simple-token/',
+        {'username':'bobby_tables','password':'existrulz123'})
+    ```
+
 
 #### Parameters
 
@@ -48,20 +47,28 @@ Key      | Example value
 
 A JSON object containing a token key.
 
+
+```json
+{ "token": "96524c5ca126d87eb18ee7eff408ca0e71e94737" }
+```
+
+
 ### Signing requests
 
 Include the `Authorization: Token [your_token]` header in all requests.
 
+=== "Shell"
 
-```python
-import requests
+    ```shell
+    # With curl, you can just pass the correct header with each request
+    curl "api_endpoint_here" \
+      -H "Authorization: Token 96524c5ca126d87eb18ee7eff408ca0e71e94737"
+    ```
+    
+=== "Python"
+    ```python
+    import requests
 
-requests.post(url,
-    headers={'Authorization':'Token 96524c5ca126d87eb18ee7eff408ca0e71e94737'})
-```
-
-```shell
-# With curl, you can just pass the correct header with each request
-curl "api_endpoint_here" \
-  -H "Authorization: Token 96524c5ca126d87eb18ee7eff408ca0e71e94737"
-```
+    requests.post(url,
+        headers={'Authorization':'Token 96524c5ca126d87eb18ee7eff408ca0e71e94737'})
+    ```

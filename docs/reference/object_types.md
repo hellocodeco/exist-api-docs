@@ -4,226 +4,203 @@ title: Object types and terminology
 
 ## Users
 
+Users are pretty self-explanatory. Use the `timezone` to show times in the correct time zone for the user. Use the `imperial_*` flags to know which values to show in imperial units.
+
 ```json
+
 {
-    "id": 1,
     "username": "josh",
     "first_name": "Josh",
     "last_name": "Sharp",
-    "bio": "I made this thing you're using.",
-    "url": "http://hellocode.co/",
-    "avatar": "https://exist.io/static/media/avatars/josh_2.png",
+    "avatar": "https://exist.io/media/avatars/josh_1.png",
     "timezone": "Australia/Melbourne",
-    "local_time": "2020-05-08T20:56:20.417+10:00",
-    "private": false,
-    "imperial_units": false
+    "local_time": "2022-05-13T16:55:54.302963+10:00",
+    "imperial_distance": false,
+    "imperial_weight": false,
+    "imperial_energy": false,
+    "imperial_liquid": false,
+    "imperial_temperature": false,
+    "trial": false,
+    "delinquent": false
 }
 ```
-Users are pretty self-explanatory.
 
-Most of the time you will only be concerned with the currently authenticated user, so
-wherever you see the `username` argument in a URL you may substitute the special keyword `$self` to request the
-authenticated user.
 
 ## Attributes
 
+
+This is our name for data points or individual numbers a user can track about themselves.
+These are tracked at a single day granularity — there's no per-hour or -minute data. Attributes can be
+string types but are usually quantifiable, i.e. integers or floats. The `value_type` field reflects this type.
+
+An attribute has many values, one for each day that it has been tracked. If requested, the `values` property will
+contain an array of `date`/`value` pairs.
+
+If there is no data for a particular date, this will be reflected with a null value — you should expect to
+receive a list of results containing every single day, rather than days without data being omitted.
+
+All datetimes in values are in UTC unless otherwise specified, and should have the user's timezone applied to create a local TZ-aware datetime. All dates are local to the user.
+
+Values are always stored internally and returned in metric units. Each user object contains `imperial_*` flags which must be respected when formatting values for the user, i.e. if `imperial_distance` is `true`, a `steps_distance` value must be converted from kilometres to miles.
+
+Attributes have a `priority` integer which is used for sorting (in ascending order). Attributes belong to groups which have a `label` and a `priority`, also used for sorting. Clients should display attributes in these groups when displaying multiple attributes.
+Groups are currently fairly broad and may change as we add more supported attributes.
+
+Manual attributes are those which are not automatically filled with data from a supported integration, but instead have manual entry UI provided within our official clients.
+
+See also [list of attribute templates](#list-of-attribute-templates) and [attribute value types](#attribute-value-types).
+
 ```json
 {
-    "attribute": "steps",
+    "group": {
+        "name": "activity",
+        "label": "Activity",
+        "priority": 1
+    },
+    "template": "steps",
+    "name": "steps",
     "label": "Steps",
-    "group": 
-        {
-            "name": "activity",
-            "priority": 1
-        },
     "priority": 1,
-    "service": "Fitbit",
+    "manual": false,
+    "active": true,
     "value_type": 0,
     "value_type_description": "Integer",
-    "private": false,
+    "service": {
+        "name": "googlefit",
+        "label": "Google Fit"
+    },
     "values": [
         {
-            "value": 3725,
-            "date": "2015-05-08"
-        },
-        {
-            "value": 6177,
-            "date": "2015-05-07"
-        },
-        {
-            "value": 7811,
-            "date": "2015-05-06"
-        },
-        {
-            "value": 6632,
-            "date": "2015-05-05"
-        },
-        {
-            "value": 6014,
-            "date": "2015-05-04"
-        },
-        {
-            "value": 4376,
-            "date": "2015-05-03"
-        },
-        {
-            "value": 8671,
-            "date": "2015-05-02"
-        },
-        {
-            "value": 4658,
-            "date": "2015-05-01"
+            "date": "2022-05-13",
+            "value": 1337
         }
     ]
 }
 
 ```
 
-This is our name for data points or individual numbers a user can track about themselves.
-These are tracked at a single day granularity — there's no per-hour or -minute data. Attributes can be
-strings but are usually quantifiable, ie. integers or floats.
-
-An attribute has many values, one for each day that it has been tracked. In some responses, you'll see the `value` property
-reflected within an attribute object. At other times, particularly if you are requesting multiple days of data, the `values` property will
-contain an array of `date`/`value` pairs.
-
-If there is no data for a particular date, this will be reflected with a null value — you should expect to
-receive a list of results containing every single day, rather than days without data being left out.
-
-All datetimes are in UTC unless otherwise specified, and should have the user's timezone applied to create a local TZ-aware datetime. All dates are local to the user.
-
-Values are always stored internally and returned in metric units. Each user object contains an `imperial_units` boolean which must be respected when formatting values for the user,
-ie. if this is `true`, a `steps_distance` value must be converted from km to miles.
-
-In situations where multiple attributes are requested, for example the "today" overview, these attributes will be returned **grouped**.
-A group represents attributes that belong together, for example the "activity" group contains the attributes `steps`, `active_min`, etc.
-You can see an example of this in the ['overview' endpoint](#get-current-overview-for-user).
-
-Clients should display attributes in these groups when displaying multiple attributes.
-Groups are currently fairly broad and may change as we add more supported attributes.
-
-See [list of supported attributes](#list-of-attributes).
 
 ## Correlations
 
-```json
-{
-    "date": "2015-05-11", 
-    "period": 90, 
-    "attribute": "steps", 
-    "attribute2": "steps_distance", 
-    "value": 0.999735821732415,
-    "p": 5.43055953485446e-146,
-    "percentage": 43.254411196924906,
-    "stars": 2,
-    "second_person": "You get more steps when you spend more time active.",
-    "second_person_elements": [
-        "you get more steps",
-        "when",
-        "you spend more time active"
-    ],
-    "attribute_category": null,
-    "strength_description": "Quite often go together",
-    "stars_description": "Certain to be related",
-    "description": null,
-    "occurrence": null,
-    "rating": null
-}
-```
+Correlations are a measure of the relationship between two variables. A positive correlation implies that as one variable increases (its values get higher), so does the other. A negative correlation implies that as one variable increases, the other decreases. We present these to users as a way to explain past trends, and use them to predict future behaviour.
 
-Correlations are a measure of the relationship between two variables. A positive
-correlation implies that as one variable increases (its values get higher), so
-does the other. A negative correlation implies that as one variable increases,
-the other decreases. We present these to users as a way to explain past trends,
-and use them to predict future behaviour.
+Correlation values vary between -1 and +1 with 0 implying no correlation. Correlations of -1 or +1 imply an exact linear relationship.
 
-Correlation values vary between -1 and +1 with 0 implying no correlation.
-Correlations of -1 or +1 imply an exact linear relationship.
-
-P-values are a way of determining confidence in the result. A value lower than
-0.05 is generally considered "statistically significant".
+P-values are a way of determining confidence in the result. A value lower than 0.05 is generally considered "statistically significant".
 
 We create simple English sentences to represent each possible correlation as a combination of attributes.
 
-We're also careful to represent these as correlations only, not as one attribute directly causing a change in
-the other, and we ask that you do the same. **Correlation is not causation**.
-There may be many hidden factors which underlie the relationship between two attributes. It is up to the user to
-determine the cause.
+We're also careful to represent these as correlations only, not as one attribute directly causing a change in the other, and we ask that you do the same. **Correlation is not causation**. There may be many hidden factors which underlie the relationship between two attributes. It is up to the user to determine the cause.
 
-Correlations are generated weekly.
+Correlations are generated weekly on Sundays.
+
+```json
+{
+  "date": "2022-05-08",
+  "period": 364,
+  "offset": 0,
+  "attribute": "steps",
+  "attribute2": "walk",
+  "value": 0.6754596120404917,
+  "p": 7.928064702293852e-50,
+  "percentage": 67.54596120404916,
+  "stars": 5,
+  "second_person": "you get more steps when you tag 'walk' more.",
+  "second_person_elements": [
+    "you get more steps",
+    "when",
+    "you tag 'walk' more"
+  ],
+  "attribute_category": null,
+  "strength_description": "Nearly always go together",
+  "stars_description": "Certain to be related",
+  "description": null,
+  "occurrence": null,
+  "rating": {
+    "positive": true,
+    "rating_type": 50,
+    "rating": "Useful"
+  }
+}
+```
+
 
 ### Examples
 
-**"You are more productive when you listen to music more."**
+
+>    **"You are more productive when you listen to music more."**
+>
+>   (55% strength / 5 stars / P 0.007)
 
 In this case the value is 0.55, and this is a positive correlation — when one value (*tracks played*) increases,
 so does the other (*time spent productively*).
 
-**"You are less active when it's a warmer day."**
+> **"You are less active when it's a warmer day."**
+>
+> (25% strength / 5 stars / P 0.02 )
 
 In this case the value is -0.25, and this is a negative correlation — when one value (*max temp*) increases,
 the other decreases (*time active*).
 
 ## Insights
 
-```json
-{
-    "created": "2015-05-08T05:05:46Z",
-    "target_date": "2015-05-07",
-    "html": "<div class=\"secondary\">Thursday marks a new productivity streak!</div>",
-    "value": "3 days",
-    "value2": "3",
-    "comment": null,
-    "type": {
-        "name": "productive_min_goal_best_streak",
-        "period": 1,
-        "priority": 2,
-        "attribute": {
-            "name": "productive_min",
-            "label": "Productive time",
-            "group": {
-                "name": "productivity",
-                "priority": 2
-            },
-            "priority": 1
-        }
-    }
-}
-```
-
-Insights are interesting events found within the user's data. These are not triggered by the user but generated automatically if the user's data fits an insight type's criteria. Typically these fall into a few categories: day-level events, for example, yesterday was the highest or lowest steps value in however many days; and week and month-level events, like summaries of total steps walked for the month. If an insight is relevant to a specific day it will contain a `target_date` value.
+Insights are interesting events found within the user's data. These are not triggered by the user but generated automatically if the values for an attribute fits an insight type's criteria. Typically these fall into a few categories: day-level events, for example, yesterday was the highest or lowest steps value in however many days; and week and month-level events, like summaries of total steps walked for the month. If an insight is relevant to a specific day it will contain a `target_date` value.
 
 Insights have a priority where `1` is highest and means real-time, `2` is day-level, `3` is week, and `4` is month.
 
 HTML and text output is provided.
 
-### Examples
-
-> **Thursday marks a new productivity streak!**<br/>Beat your goal every day for 3 days
-
-## Averages
 ```json
 {
-    "attribute": "floors",
-    "date": "2015-05-03",
-    "overall": 13,
-    "monday": 13,
-    "tuesday": 16,
-    "wednesday": 13,
-    "thursday": 12,
-    "friday": 14,
-    "saturday": 13,
-    "sunday": 13
+    "created": "2022-05-13T08:17:30+01:00",
+    "target_date": "2022-05-13",
+    "type": {
+        "name": "dow_tracks",
+        "period": 1,
+        "priority": 1,
+        "attribute": {
+            "name": "tracks",
+            "label": "Tracks played",
+                "group": {
+                "name": "media",
+                "label": "Media",
+                "priority": 7
+            },
+            "priority": 1,
+            "value_type": 0,
+            "value_type_description": "Integer"
+        }
+    },
+    "html": "<div class=\"secondary\">You listen to more music on a Friday.</div>\r\n<div class=\"num-label\">&quot;Kurt Vile&quot; has been on high rotation.</div>",
+    "text": "You listen to more music on a Friday.\r\n\"Kurt Vile\" has been on high rotation."
+},
+```
+
+## Averages
+
+Averages are generated weekly and are the basis of our goal system. For attributes that don't warrant a specific related `attribute_name_goal` attribute, the average is used to create the "end value" of the attribute's progress bar in our dashboard — meaning each day, users are being shown their progress relative to their usual behaviour. We break down averages by day of the week but also record the overall average. As we keep historical data this allows us to plot "rolling averages" showing changes in attribute values. The data set for finding the average is always the last 60 days' data.
+
+**Note:** these are actually medians, but we use "average" as it's simpler to explain to users. Please also use this terminology.
+
+```json
+{
+    "user_attribute": "sleep",
+    "date": "2022-05-08",
+    "overall": 399,
+    "monday": 382,
+    "tuesday": 425,
+    "wednesday": 401,
+    "thursday": 394,
+    "friday": 376,
+    "saturday": 406,
+    "sunday": 419
 }
 ```
 
-Averages are generated weekly and are the basis of our goal system. For attributes that don't warrant a specific related `attribute_name_goal` attribute, the average is used to create the "end value" of the attribute's progress bar in our dashboard — meaning each day, users are being shown their progress relative to their usual behaviour. We break down averages by day of the week but also record the overall average. As we keep historical data this allows us to plot "rolling averages" showing changes in attribute values.
-
-Note: these are actually medians, but we use "average" as it's simpler to explain to users. Please also use this terminology.
 
 ## Clients and services
 
-We use **client** to refer an application with OAuth2 client credentials. A client which writes data to attributes is termed a **service**. 
+We use **client** to refer an application with OAuth2 client credentials. A client which writes data to attributes is termed a **service**. Where we use the term **integration**, this means a service with a first-party integration with Exist.
 
 
 ## List of attribute templates
@@ -243,6 +220,7 @@ Name                | Group        | Value type description         | Value type
 `steps_elevation`   | Activity     | Float (km)                     | `1`
 `floors`            | Activity     | Integer                        | `0`
 `steps_distance`    | Activity     | Float (km)                     | `1`
+`stand_hours`       | Activity     | Integer                        | `0`
 `cycle_min`         | Activity     | Period (minutes as integer)    | `3`
 `cycle_distance`    | Activity     | Float (km)                     | `1`
 `active_energy` | Activity | Float (kJ) | `1`
@@ -259,7 +237,6 @@ Name                | Group        | Value type description         | Value type
 `emails_received`   | Productivity | Integer                        | `0`
 `pomodoros_min` | Productivity | Period (minutes as integer) | `3`
 `keystrokes` | Productivity | Period (minutes as integer) | `3`
-`custom`            | Custom tracking | String                      | `2`
 `coffees`           | Food and drink | Integer                      | `0`
 `alcoholic_drinks`  | Food and drink | Integer                      | `0`
 `energy`            | Food and drink | Float (kJ)                   | `1`
@@ -273,8 +250,10 @@ Name                | Group        | Value type description         | Value type
 `cholesterol`       | Food and drink | Float (mg) | `1`
 `caffeine`          | Food and drink | Float (mg) | `1`
 `money_spent`       | Finance      | Float (user's local currency unit) | `1`
-`mood`              | Mood         | Integer (between 1 and 9 inclusive)    | `0`
+`mood`              | Mood         | Integer scale (between 1 and 9)    | `8`
 `mood_note`         | Mood         | String (max 1000 characters)    | `2`
+`energy_level`      | Mood         | Integer scale (between 1 and 9)    | `8`
+`stress_level`      | Mood         | Integer scale (between 1 and 9)    | `8`
 `sleep`             | Sleep        | Period (minutes as integer)    | `3`
 `time_in_bed`       | Sleep        | Period (minutes as integer)    | `3`
 `sleep_start`       | Sleep        | Time of day (minutes from midday as integer)   | `6`
@@ -314,6 +293,7 @@ Name                | Group        | Value type description         | Value type
 `weather_icon`          | Weather  | String (name of icon best representing weather values) | `2`
 `day_length`               | Weather  | Period (minutes as integer) | `3`
 
+
 ## Attribute value types
 
 These are the allowed types of values an attribute can store.
@@ -334,55 +314,16 @@ Scale (1-9 as integer)		   | `8`
 
 ## Custom tags
 
-> An example of the today endpoint's output for the custom group.
 
-```json
+Custom tags are booleans represented as integer type attributes (`0` or `1`) within the `custom` group, and are user-defined so unable to be listed here. Examples include tags like `meditation`, `tired`, and `sex`. 
 
-{
+To correctly get all tags for a day, collect all attributes:
 
-    "group": "custom",
-    "label": "Custom tracking",
-    "priority": 3,
-    "items": [
-        {
-            "attribute": "custom",
-            "label": "Custom tracking",
-            "value": "accounting,",
-            "service": "exist_for_android",
-            "priority": 1,
-            "private": true,
-            "value_type": 2,
-            "value_type_description": "String"
-        },
-        {
-            "attribute": "accounting",
-            "label": "Accounting",
-            "value": 1,
-            "service": "builtin",
-            "priority": 2,
-            "private": true,
-            "value_type": 0,
-            "value_type_description": "Integer"
-        },
-        {
-            "attribute": "tired",
-            "label": "Tired",
-            "value": 0,
-            "service": "builtin",
-            "priority": 2,
-            "private": true,
-            "value_type": 0,
-            "value_type_description": "Integer"
-        },
-        
-    ]
-}
+- with a value type of `7`;
+- within the `custom` group;
+- with a value of `1`. 
 
-```
+A value of `1` represents the "tagged" state, `0` or `null` meaning the tag was not used for that day.  
 
-Custom tags are represented as integer type attributes within the `custom` group, and are user-defined so unable to be listed here. Examples include tags like `meditation`, `tired`, and `sex`. 
-
-The `custom` attribute is a string representation of the tags a user has sent, but may be truncated to the last tag to fit within 250 characters. Using this string might be helpful to you as a quick and easy way to display tags, so feel free to use it if it suits your purposes, but is not the source of truth. To correctly get all tags for a day, collect all attribute names for attributes with a priority of 2 or higher, within the `custom` group, with a value of `1`. A value of `1` represents the "tagged" state, `0` meaning the tag was not used for that day.  
-
-Tag names are stored with spaces converted to underscores and should always be rendered with underscores converted back to spaces, to be more user-friendly.
+Tags have internal `name`s like any other attribute, but remember to display them using their `label` field.
 

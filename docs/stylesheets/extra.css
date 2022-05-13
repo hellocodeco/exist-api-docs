@@ -2,6 +2,8 @@
     --md-primary-fg-color:#333a45;
     --md-typeset-a-color: #00a3c6;
     --md-accent-fg-color: #00b7e0;
+    
+
 }
 .md-typeset a {
     color: #00a3c6;
@@ -9,4 +11,27 @@
 
 .md-nav__item .md-nav__link--active {
     color: #00a3c6;
+}
+
+.md-typeset {
+    
+    --md-code-hl-number-color: #ffa551;
+    --md-code-hl-special-color: #f2b29e;
+    --md-code-hl-function-color: #74abfd;
+    --md-code-hl-constant-color: #b660ff;
+    --md-code-hl-keyword-color: #c2c4ff;
+    --md-code-hl-string-color: #ff6760;
+    --md-code-hl-name-color: #f0f0f0;
+    --md-code-hl-operator-color: #b8adc0;
+    --md-code-hl-punctuation-color: #b8adc0;
+    --md-code-hl-comment-color: #bbb;
+    --md-code-hl-variable-color: #f0f0f0;
+}
+
+.md-typeset pre > code {
+    --md-code-fg-color: #f0f0f0;
+    --md-code-hl-generic-color: #f0f0f0;
+    --md-code-bg-color: #352c37;
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
