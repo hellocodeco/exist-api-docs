@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-There are two authentication methods — simple tokens, and OAuth2 clients. So which one do you need?
+There are two authentication methods: simple tokens and OAuth2 clients. So which one do you need?
 
 **Simple token authentication** is read-only and exists as a basic means for users to access their own data from Exist. This method is available to everyone
 by exchanging a username and password for a token that doesn't expire. This is only recommended for quickly building a single-user, read-only client,

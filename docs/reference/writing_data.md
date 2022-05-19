@@ -11,10 +11,12 @@ title: Updating values
 
 If you jumped straight here looking for how to send data for your own attributes, here's a recap of the steps you may have missed:
 
-1. Make sure you have an [OAuth2 client](#) set up
-2. Make sure your token has the correct write scope (set this from your [app management page](https://exist.io/account/apps/))
-3. Make sure you have either [created the attribute](#) or [acquired ownership](#) of the attribute before updating (just once, not each time)
+1. Make sure you have an [OAuth2 client](/reference/authentication/oauth2/) set up
+2. Make sure your token has the [correct write scope](/reference/authentication/oauth2/#scopes) (set this from your [app management page](https://exist.io/account/apps/))
+3. Make sure you have either [created the attribute](/reference/attribute_ownership/#create-new-attributes) or [acquired ownership](/reference/attribute_ownership/#acquire-attributes) of the attribute before updating (just once, not each time)
 4. Now you can update.
+
+This process is covered in more detail [in the guide](/guide/write_client/).
 
 ## Updating attribute values
 

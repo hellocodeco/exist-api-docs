@@ -4,7 +4,7 @@ title: Insights
 
 ## Get all insights
 
-Returns a paged list of user's insights. 
+Returns a paged list of the authenticated user's insights. Results are limited to your read scopes.
 
 ### Request
 
@@ -24,7 +24,7 @@ Name  | Description
 === "Shell"
 
     ```shell
-    curl -H "Authorization: Token [YOUR_TOKEN]" https://exist.io/api/2/insights/
+    curl "https://exist.io/api/2/insights/" -H "Authorization: Bearer [YOUR_TOKEN]"
     ```
 
 === "Python"
@@ -33,7 +33,7 @@ Name  | Description
     import requests
 
     requests.get("https://exist.io/api/2/insights/",
-        headers={'Authorization':'Token [YOUR_TOKEN]'})
+        headers={'Authorization':'Bearer [YOUR_TOKEN]'})
     ```
 
 ### Response
@@ -42,50 +42,34 @@ Returns a JSON object containing a paged array:
 
 ```json
 {
-    "count": 740, 
-    "next": "https://exist.io/api/1/users/josh/insights/?page=2", 
-    "previous": null, 
-    "results": [
-        {
-            "created": "2015-05-09T01:00:02Z", 
-            "target_date": "2015-05-08", 
-            "html": "<div class=\"secondary\">Friday night: Shortest sleep for 3 days</div>...", 
-            "text": "Friday night: Shortest sleep for 3 days\r\n", 
-            "type": {
-                "name": "sleep_worst_since_x", 
-                "period": 1, 
-                "priority": 2, 
-                "attribute": {
-                    "name": "sleep", 
-                    "label": "Time asleep", 
-                    "group": {
-                        "name": "sleep", 
-                        "priority": 3
-                    }, 
-                    "priority": 2
-                }
-            }
-        }, 
-        {
-            "created": "2015-05-08T21:00:03Z", 
-            "target_date": null, 
-            "html": "<div class=\"number\">09:38</div>...",
-            "text": "09:38 average time asleep...",
-            "type": {
-                "name": "sleep_end_average_week", 
-                "period": 7, 
-                "priority": 3, 
-                "attribute": {
-                    "name": "sleep_end", 
-                    "label": "Wake time", 
-                    "group": {
-                        "name": "sleep", 
-                        "priority": 3
-                    }, 
-                    "priority": 4
-                }
-            }
+  "count": 12,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "created": "2022-05-16T13:17:03+08:00",
+      "target_date": "2022-05-16",
+      "type": {
+        "name": "dow_sleep",
+        "period": 1,
+        "priority": 1,
+        "attribute": {
+          "name": "sleep",
+          "label": "Time asleep",
+          "group": {
+            "name": "sleep",
+            "label": "Sleep",
+            "priority": 3
+          },
+          "priority": 1,
+          "value_type": 3,
+          "value_type_description": "Period (min)"
         }
-    ]
+      },
+      "html": "<div class=\"secondary\">Last night&#x27;s sleep was surprisingly long.</div>\r\n<div class=\"num-label\">Monday is usually your shortest sleep of the week.</div>",
+      "text": "Last night's sleep was surprisingly long.\r\nMonday is usually your shortest sleep of the week."
+    },
+    # ...snip!...
+  ]
 }
 ```

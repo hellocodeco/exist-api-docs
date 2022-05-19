@@ -29,11 +29,13 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 nav:
-  - "Welcome": index.md
+  - "Home": 
+    - "Welcome": index.md
   - "Guide": 
     - "Getting started": guide/index.md
     - "Reading your data": guide/read_client.md
     - "Writing new data": guide/write_client.md
+    - "Sharing your integration": guide/integration.md
     - "Considerations": guide/considerations.md
     - "Support": guide/support.md
   - "Reference": 

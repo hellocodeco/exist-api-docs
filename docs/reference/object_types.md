@@ -4,7 +4,7 @@ title: Object types and terminology
 
 ## Users
 
-Users are pretty self-explanatory. Use the `timezone` to show times in the correct time zone for the user. Use the `imperial_*` flags to know which values to show in imperial units.
+This data is useful for customising the display of user data to the user's preferences. Use `timezone` to show times in the correct time zone for the user. Use the `imperial_*` flags to know which values to show in imperial units.
 
 ```json
 
@@ -123,6 +123,12 @@ Correlations are generated weekly on Sundays.
   }
 }
 ```
+
+`attribute_category` is used to distinguish "sub-correlations", that is, correlations for a subset of this attribute's data. For example, we may find a correlation between `events` in a specific calendar and `productive_min` — in this case, `attribute_category` would contain the name of the specific calendar.
+
+`description` and `occurrence` fields are filled when both attributes are templated and we understand this relationship. For example, for the `productive_min` and `tracks` positive correlation, `occurrence` will be `"Very common"` and `description` will provide some further information about why music helps us be more productive.
+
+`rating` provides a user-submitted rating object on the value of the correlation.
 
 
 ### Examples

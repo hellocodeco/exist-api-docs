@@ -12,7 +12,7 @@ Name | Value
 **POSTing data** | `application/x-www-form-urlencoded` (the usual) or send the body as `application/json`
 **OAuth2 auth header** | `Authorization: Bearer [tokenxyz]`
 **Simple token auth header** | `Authorization: Token [tokenabc]`
-**Getting a simple token** | `POST  'username' and 'password' to https://exist.io/api/1/auth/simple-token/`
-**Testing your token** | `GET https://exist.io/api/2/accounts/profile/`
+**Getting a simple token** | `POST` your `username` and `password` to `https://exist.io/api/1/auth/simple-token/`
+**Testing your token** | `GET` `https://exist.io/api/2/accounts/profile/`
 **See some JSON in your browser** | [Your attributes with today's values](https://exist.io/api/2/attributes/with-values/)
 

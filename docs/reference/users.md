@@ -2,9 +2,9 @@
 title: Users
 ---
 
-## Get profile stub for user
+## Get profile for user
 
-Returns an overview of the user's personal details.
+Returns some basic details and personal preferences for the authenticated user. No specific scope is required.
 
 ### Request
 
@@ -14,7 +14,7 @@ Returns an overview of the user's personal details.
 === "Shell"
 
     ```shell
-    curl -H "Authorization: Token [YOUR_TOKEN]" https://exist.io/api/2/accounts/profile/
+    curl "https://exist.io/api/2/accounts/profile/" -H "Authorization: Bearer [YOUR_TOKEN]" 
     ```
 
 === "Python"
@@ -22,8 +22,8 @@ Returns an overview of the user's personal details.
     ```python
     import requests
 
-    requests.get("https://exist.io/api/2/accounts/profile/",
-        headers={'Authorization':'Token [YOUR_TOKEN]'})
+    requests.get("https://exist.io/api/2/accounts/profile/", 
+                 headers={'Authorization':'Bearer [YOUR_TOKEN]'})
     ```
 
 ### Response
@@ -32,21 +32,18 @@ Returns a user object in JSON:
 
 ```json
 {
-    "id": 1,
-    "username": "josh",
-    "first_name": "Josh",
-    "last_name": "Sharp",
-    "bio": "I made this thing you're using.",
-    "url": "http://hellocode.co/",
-    "avatar": "https://exist.io/static/media/avatars/josh_2.png",
-    "timezone": "Australia/Melbourne",
-    "local_time": "2020-07-31T22:33:49.359+10:00",
-    "private": false,
-    "imperial_units": false,
-    "imperial_distance": false,
-    "imperial_weight": false,
-    "imperial_energy": false,
-    "imperial_liquid": false,
-    "imperial_temperature": false,
+  "username": "josh",
+  "first_name": "Josh",
+  "last_name": "Sharp",
+  "avatar": "https://exist.io/media/avatars/josh.png",
+  "timezone": "Australia/Sydney",
+  "local_time": "2022-05-16T16:01:37.587301+10:00",
+  "imperial_distance": false,
+  "imperial_weight": false,
+  "imperial_energy": false,
+  "imperial_liquid": false,
+  "imperial_temperature": false,
+  "trial": false,
+  "delinquent": false
 }
 ```

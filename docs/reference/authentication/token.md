@@ -23,7 +23,7 @@ Exchange your user credentials for a token. This token will not change or expire
 
     ```shell
 
-    curl https://exist.io/api/1/auth/simple-token/ -d username=bobby_tables -d password=existrulz123
+    curl -X POST "https://exist.io/api/1/auth/simple-token/" -d "username=bobby_tables" -d "password=existrulz123"
     ```
 
 === "Python"

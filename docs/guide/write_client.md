@@ -1,2 +1,2 @@
 
-[Part three: considerations :material-arrow-right:](/guide/considerations/)
+[Part three: sharing your integration :material-arrow-right:](/guide/integration/)

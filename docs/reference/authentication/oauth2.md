@@ -13,7 +13,7 @@ Remember you need to create an OAuth2 client in Exist to use this method. OAuth2
 
 ### Scopes
 
-Be responsible and request as few scopes as required to provide your necessary functionality. Only attributes that match the scope (that is, are in the groups you're allowed to read or write, or are manual) will be accessible. For example, if you request the contents of the `mood` group, but you only have `activity_read` scope, you will receive an empty list.
+Be responsible and request as few scopes as required to provide your necessary functionality. Only attributes that match the scope (that is, are in the groups you're allowed to read or write, or are manual) will be accessible. For example, if you request the contents of the `mood` group in an attributes endpoint, but you only have `activity_read` scope, you will receive an empty list.
 
 **Read scopes** allow you to *retrieve attributes and their values* for those that match the scope.
 
@@ -57,7 +57,7 @@ Be responsible and request as few scopes as required to provide your necessary f
 ### Authorisation flow
 
 
-The OAuth2 authorisation flow is vastly simpler than the original OAuth 1.0:
+Let's go through the multiple steps required to receive a token for a user:
 
 1. Send your user to the "request authorisation" page at `/oauth2/authorize` with these parameters:
     *  `response_type=code` to request an auth code in return   
@@ -85,15 +85,14 @@ Send your user to the authorisation page at `https://exist.io/oauth2/authorize`
     ```shell
     # We can't really do this from the shell, but your URL would look like this:
 
-    curl https://exist.io/oauth2/authorize?response_type=code&client_id=[your_id]&redirect_uri=[your_uri]&scope=[your_scope]
+    curl "https://exist.io/oauth2/authorize?response_type=code&client_id=[your_id]&redirect_uri=[your_uri]&scope=[your_scope]"
     ```
 
 === "Python"
 
     ```python
     # in django, we would do something like this
-    return redirect('https://exist.io/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s' % 
-        (CLIENT_ID, REDIRECT_URI,"scope")
+    return redirect('https://exist.io/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s' % (CLIENT_ID, REDIRECT_URI,"[your_scope]")
     )
     ```
 
@@ -103,7 +102,7 @@ Exchange your code for an access token:
 
 === "Shell"
     ```shell
-    curl -X POST https://exist.io/oauth2/access_token -d "grant_type=authorization_code" -d "code=[some_code]" -d "client_id=[your_id]" -d "client_secret=[your_secret]" -d "redirect_uri=[your_uri]"
+    curl -X POST "https://exist.io/oauth2/access_token" -d "grant_type=authorization_code" -d "code=[some_code]" -d "client_id=[your_id]" -d "client_secret=[your_secret]" -d "redirect_uri=[your_uri]"
     ```
 
 === "Python"
@@ -113,11 +112,11 @@ Exchange your code for an access token:
     url = 'https://exist.io/oauth2/access_token'
 
     response = requests.post(url,
-            {'grant_type':'authorization_code',
-                'code':code,
-                'client_id':CLIENT_ID,
-                'client_secret':CLIENT_SECRET,
-                'redirect_uri':REDIRECT_URI })
+        {'grant_type':'authorization_code',
+         'code':code,
+         'client_id':CLIENT_ID,
+         'client_secret':CLIENT_SECRET,
+         'redirect_uri':REDIRECT_URI })
     ```
 
 Returns JSON if your request was successful:
@@ -140,7 +139,7 @@ Tokens expire in a year and can be refreshed at any time, invalidating the origi
 === "Shell"
 
     ```shell
-    curl -X POST https://exist.io/oauth2/access_token -d "grant_type=refresh_token" -d "refresh_token=[token]" -d "client_id=[your_id]" -d "client_secret=[your_secret]"
+    curl -X POST "https://exist.io/oauth2/access_token" -d "grant_type=refresh_token" -d "refresh_token=[token]" -d "client_id=[your_id]" -d "client_secret=[your_secret]"
     ```
 
 === "Python"

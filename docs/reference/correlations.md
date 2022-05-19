@@ -2,87 +2,30 @@
 title: Correlations
 ---
 
-## Get all correlations for attribute
+## Get all correlations
 
-```shell
-curl -H "Authorization: Token [YOUR_TOKEN]" https://exist.io/api/1/users/\$self/correlations/attribute/steps/
-```
-
-```python
-import requests
-
-requests.get("https://exist.io/api/1/users/$self/correlations/attribute/steps/",
-    headers={'Authorization':'Token [YOUR_TOKEN]'})
-```
-
-> Returns a JSON object containing an array of results:
-
-```json
-{
-    "count": 479, 
-    "next": "https://exist.io/api/1/users/josh/correlations/attribute/steps/?page=2", 
-    "previous": null, 
-    "results": [
-        {
-            "date": "2015-05-11", 
-            "period": 90, 
-            "attribute": "steps", 
-            "attribute2": "steps_distance", 
-            "value": 0.999735821732415,
-            "p": 5.43055953485446e-146,
-            "percentage": 43.254411196924906,
-            "stars": 2,
-            "second_person": "You get more steps when you spend more time active.",
-            "second_person_elements": [
-                "you get more steps",
-                "when",
-                "you spend more time active"
-            ],
-            "attribute_category": null,
-            "strength_description": "Quite often go together",
-            "stars_description": "Certain to be related",
-            "description": null,
-            "occurrence": null,
-            "rating": null
-        }, 
-        {
-            "date": "2019-09-01",
-            "period": 365,
-            "attribute": "steps",
-            "attribute2": "floors",
-            "value": 0.389185953425964,
-            "p": 1.2396329763201e-11,
-            "percentage": 38.918595342596404,
-            "stars": 5,
-            "second_person": "You get more steps when you climb more floors.",
-            "second_person_elements": [
-                "you get more steps",
-                "when",
-                "you climb more floors"
-            ],
-            "attribute_category": null,
-            "strength_description": "Quite often go together",
-            "stars_description": "Certain to be related",
-            "description": "If you're out and about and walking around more, you're also more likely to be climbing floors. Especially if your home or workplace is multi-level.",
-            "occurrence": "Common",
-            "rating": {
-                "positive": false,
-                "rating": "Too obvious"
-            }
-        }
-    ]
-}
-```
-
-
-
-Returns a paged list of all correlations generated relating to this attribute, ordered by date.
-Correlations may appear more than once, with different results, as this relationship changes over time.
+Returns a paged list of all correlations generated in the last week, optionally filtered by attribute, strength, or confidence. Results limited to your read scopes.
 
 
 ### Request
 
-`GET /api/1/users/:username/correlations/attribute/:attribute/`
+`GET /api/2/correlations/`
+
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/correlations/" -H "Authorization: Bearer [YOUR_TOKEN]" 
+    ```
+
+=== "Python"
+
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/correlations/",
+        headers={'Authorization':'Token [YOUR_TOKEN]'})
+    ```
+
 
 ### Parameters
 
@@ -90,88 +33,113 @@ Name  | Description
 ------|--------
 `limit` | Number of values to return per page, starting with today. Optional, max is 100.
 `page`  | Page index. Optional, default is 1.
-`date_min` | Oldest date (inclusive) of results to be returned, in format `YYYY-mm-dd`. Optional.
-`date_max` | Most recent date (inclusive) of results to be returned, in format `YYYY-mm-dd`. Optional.
-`latest` | Set this to `true` to return only the most recently generated batch of correlations. Use this on its own without `date_min` and `date_max`.
+`strong` | Boolean flag, set to `1` to return only correlations above a certain relationship strength
+`confident` | Boolean flag, set to `1` to return only correlations with a five-star confidence
+`attribute` | Pass the name of an attribute to filter correlations to this attribute only
 
-## Get the strongest correlations for all attributes
 
-```shell
-curl -H "Authorization: Token [YOUR_TOKEN]" https://exist.io/api/1/users/\$self/correlations/strongest/
-```
+### Response
 
-```python
-import requests
+Returns a JSON object containing an array of correlation results:
 
-requests.get("https://exist.io/api/1/users/$self/correlations/strongest/",
-    headers={'Authorization':'Token [YOUR_TOKEN]'})
-```
-
-> Returns a JSON array:
 
 ```json
 {
-    "count": 479, 
-    "next": "https://exist.io/api/1/users/josh/correlations/attribute/steps/?page=2", 
-    "previous": null, 
-    "results": [
-        {
-            "date": "2015-05-11", 
-            "period": 90, 
-            "attribute": "steps", 
-            "attribute2": "steps_distance", 
-            "value": 0.999735821732415,
-            "p": 5.43055953485446e-146,
-            "percentage": 43.254411196924906,
-            "stars": 2,
-            "second_person": "You get more steps when you spend more time active.",
-            "second_person_elements": [
-                "you get more steps",
-                "when",
-                "you spend more time active"
-            ],
-            "attribute_category": null,
-            "strength_description": "Quite often go together",
-            "stars_description": "Certain to be related",
-            "description": null,
-            "occurrence": null,
-            "rating": null
-        }, 
-        {
-            "date": "2019-09-01",
-            "period": 365,
-            "attribute": "steps",
-            "attribute2": "floors",
-            "value": 0.389185953425964,
-            "p": 1.2396329763201e-11,
-            "percentage": 38.918595342596404,
-            "stars": 5,
-            "second_person": "You get more steps when you climb more floors.",
-            "second_person_elements": [
-                "you get more steps",
-                "when",
-                "you climb more floors"
-            ],
-            "attribute_category": null,
-            "strength_description": "Quite often go together",
-            "stars_description": "Certain to be related",
-            "description": "If you're out and about and walking around more, you're also more likely to be climbing floors. Especially if your home or workplace is multi-level.",
-            "occurrence": "Common",
-            "rating": {
-                "positive": false,
-                "rating": "Too obvious"
-            }
-        }
-    ]
+  "count": 479, 
+  "next": "https://exist.io/api/2/correlations/?page=2", 
+  "previous": null, 
+  "results": [
+    {
+      "date": "2022-05-16",
+      "period": 309,
+      "offset": 0,
+      "attribute": "sleep",
+      "attribute2": "sleep_start",
+      "value": -0.5577851552276848,
+      "p": 1.1564227190131434e-26,
+      "percentage": 55.77851552276848,
+      "stars": 5,
+      "second_person": "you spend more time asleep when you go to bed earlier.",
+      "second_person_elements": [
+        "you spend more time asleep",
+        "when",
+        "you go to bed earlier"
+      ],
+      "attribute_category": null,
+      "strength_description": "Quite often go together",
+      "stars_description": "Certain to be related",
+      "description": null,
+      "occurrence": null,
+      "rating": null
+    },
+    # ...snip!...
+  ]
 }
 ```
 
 
+## Find a specific correlation combination
 
-Returns a list of the user's strongest correlations across all attributes.
-
+Takes parameters for the two related attributes and returns one or zero correlations, depending on whether Exist has found something. Will only return a result if at least one of the attributes is in your read scopes.
 
 ### Request
 
-`GET /api/1/users/:username/correlations/strongest/`
+`GET /api/2/correlations/combo/`
+
+
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/correlations/combo/?attribute=sleep&attribute2=workouts_min" -H "Authorization: Bearer [YOUR_TOKEN]" 
+    ```
+
+=== "Python"
+
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/correlations/combo/",
+        params={"attribute":"sleep", "attribute2":"workouts_min"},
+        headers={'Authorization':'Bearer [YOUR_TOKEN]'})
+    ```
+
+
+### Parameters
+
+ Name | Description
+ -----|------------
+`attribute` | String name of first attribute
+`attribute2` | String name of second attribute
+
+These can be in any order.
+
+### Response
+
+Returns a single correlation object or a HTTP status `404` result with an error object if none is found.
+
+```json
+{
+  "date": "2022-05-16",
+  "period": 305,
+  "offset": 0,
+  "attribute": "sleep",
+  "attribute2": "workouts_min",
+  "value": 0.12521231439002578,
+  "p": 0.028788436765440892,
+  "percentage": 12.521231439002579,
+  "stars": 4,
+  "second_person": "you spend more time working out when you spend more time asleep.",
+  "second_person_elements": [
+    "you spend more time working out",
+    "when",
+    "you spend more time asleep"
+  ],
+  "attribute_category": null,
+  "strength_description": "Rarely go together",
+  "stars_description": "Almost certainly related",
+  "description": null,
+  "occurrence": null,
+  "rating": null
+}
+```
 

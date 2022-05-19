@@ -28,17 +28,19 @@ Retrieve a list of the attribute templates Exist supports. See [attribute templa
 
 ### Parameters
 
+All parameters are optional.
+
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer used for paging the results |
-| `limit` | Integer used to define how many results to a page |
+| `page` | Integer for paging the results |
+| `limit` | Integer defining how many results to a page |
 | `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` > 10 |
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 
 
 ### Response
 
-A paged list of attribute objects.
+A paged list of attribute template objects.
 
 ```json
 {
@@ -78,7 +80,7 @@ A paged list of attribute objects.
 
 ## Get a user's attributes
 
-Retrieve a list of the user's attributes, without any values.
+Retrieve a list of the user's attributes, without any values. Results are limited to your read scopes.
 
 ### Request
 
@@ -86,10 +88,12 @@ Retrieve a list of the user's attributes, without any values.
 
 ### Parameters
 
+All parameters are optional.
+
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer used for paging the results |
-| `limit` | Integer used to define how many results to a page |
+| `page` | Integer for paging the results |
+| `limit` | Integer defining how many results to a page |
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 | `attributes` | Comma-separated list of attributes to filter by |
 | `exclude_custom` | Boolean flag, set to `true` to only show templated attributes |
@@ -148,20 +152,106 @@ A paged list of attribute objects belonging to this user. `available_services` s
 
 ## Get attributes with values
 
+Returns a paged list of the user's attributes and their recent values. Results are limited to your read scopes.
+
 ### Request
+
+`GET /api/2/attributes/with-values/`
+
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/attributes/with-values/" -H "Authorization: Bearer [token]"
+    ```
+
+=== "Python"
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/attributes/with-values/",
+                 headers={'Authorization': 'Bearer [token]'})
+    ```
+
 
 ### Parameters
 
+If filtering is needed, then rather than using both, you would use one or the other of `attributes` and `templates` to filter, depending on whether you care about templated attributes or not.
+
+| Parameter | Description |
+|-----------|-------------|
+| `page` | Integer for paging the results |
+| `limit` | Integer defining how many results to a page |
+| `days`  | Integer defining how many day values to include in `values`, max 31, default 1 |
+| `date_max` | `"yyyy-mm-dd"` date string defining the maximum date in `values` |
+| `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
+| `attributes` | Comma-separated list of attributes to filter by |
+| `templates` | Comma-separated list of attribute templates to filter by |
+| `manual` | Boolean flag, set to `true` to only show manual attributes |
+
 ### Response
+
+Note the inclusion of the `values` array, which contains date/value pairs.
+
+```json
+{
+  "count": 98,
+  "next": "http://exist.athena.lan/api/2/attributes/with-values/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "group": {
+        "name": "activity",
+        "label": "Activity",
+        "priority": 1
+      },
+      "template": "steps",
+      "name": "steps",
+      "label": "Steps",
+      "priority": 1,
+      "manual": false,
+      "active": true,
+      "value_type": 0,
+      "value_type_description": "Integer",
+      "service": {
+        "name": "googlefit",
+        "label": "Google Fit"
+      },
+      "values": [
+        {
+          "date": "2022-05-16",
+          "value": 1533
+        }
+      ]
+    },
+    # ...snip!...
+  ]
+}
+```
 
 
 ## Get a specific attribute
 
-Returns a paged list of all values from an attribute.
+Returns a paged list of all values from an attribute. Results are limited to your read scopes.
 
 ### Request
 
 `GET /api/2/attributes/values/`
+
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/attributes/values/?attribute=[name]" -H "Authorization: Bearer [token]"
+    ```
+
+=== "Python"
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/attributes/values/",
+                 params={"attribute": "[name]"},
+                 headers={'Authorization': 'Bearer [token]'})
+    ```
+
 
 ### Parameters
 
