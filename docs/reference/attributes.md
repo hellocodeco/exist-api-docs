@@ -86,6 +86,21 @@ Retrieve a list of the user's attributes, without any values. Results are limite
 
 `GET /api/2/attributes/`
 
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/attributes/" -H "Authorization: Bearer [token]"
+    ```
+
+=== "Python"
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/attributes/",
+                 headers = {'Authorization': 'Bearer [token]'})
+    ```
+
+
 ### Parameters
 
 All parameters are optional.

@@ -46,7 +46,7 @@ Values are always stored internally and returned in metric units. Each user obje
 Attributes have a `priority` integer which is used for sorting (in ascending order). Attributes belong to groups which have a `label` and a `priority`, also used for sorting. Clients should display attributes in these groups when displaying multiple attributes.
 Groups are currently fairly broad and may change as we add more supported attributes.
 
-Manual attributes are those which are not automatically filled with data from a supported integration, but instead have manual entry UI provided within our official clients.
+`manual` attributes are those which are not automatically filled with data from a supported integration, but instead have manual entry UI provided within our official clients.
 
 See also [list of attribute templates](#list-of-attribute-templates) and [attribute value types](#attribute-value-types).
 

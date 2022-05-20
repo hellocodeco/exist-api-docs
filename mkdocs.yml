@@ -53,5 +53,6 @@ nav:
       - "Users": reference/users.md
     - "Writing data":  
       - "Attribute ownership": reference/attribute_ownership.md
+      - "Creating attributes": reference/creating_attributes.md
       - "Updating values": reference/writing_data.md
     - "Changelog": reference/changelog.md
