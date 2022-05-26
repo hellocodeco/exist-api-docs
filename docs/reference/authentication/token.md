@@ -10,7 +10,7 @@ Make sure this token is included in your requests by including the `Authorizatio
 If you are logged in to Exist in the browser your session-based authentication will also work. This is handy for browsing the API
 (assuming you've set up your browser to accept JSON) but shouldn't be relied on for programmatic access.
 
-### Requesting a token 
+### Request a token 
 
 Exchange your user credentials for a token. This token will not change or expire by design but may be deprecated in the future.
 
@@ -53,7 +53,7 @@ A JSON object containing a token key.
 ```
 
 
-### Signing requests
+### Sign requests
 
 Include the `Authorization: Token [your_token]` header in all requests.
 

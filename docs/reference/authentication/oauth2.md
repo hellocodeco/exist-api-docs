@@ -132,7 +132,7 @@ Returns JSON if your request was successful:
 ```
 
 
-### Refreshing an access token
+### Refresh an access token
 
 Tokens expire in a year and can be refreshed at any time, invalidating the original access and refresh tokens.
 
@@ -187,7 +187,7 @@ Name  | Description
 
 The same as your original access token response, a JSON object with an `access_token`, `refresh_token`, `token_type`, `scope`, and `expires_in` time in seconds. 
 
-### Signing requests
+### Sign requests
 
 Sign all authenticated requests by adding the Authorization header, `Authorization: Bearer [access_token]`. Note that this differs from the simple token-based authentication by using `Bearer`, *not* `Token`.
 
