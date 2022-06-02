@@ -4,7 +4,7 @@ title: Insights
 
 ## Get all insights
 
-Returns a paged list of the authenticated user's insights. Results are limited to your read scopes.
+Returns a paged list of the authenticated user's insights ([see the definition](/reference/object_types/#insights)). Results are limited to your read scopes.
 
 ### Request
 
@@ -14,7 +14,7 @@ Returns a paged list of the authenticated user's insights. Results are limited t
 
 Name  | Description
 ------|--------
-`limit` | Number of values to return per page, starting with today. Optional, max is 100.
+`limit` | Number of values to return per page. Optional, max is 100.
 `page`  | Page index. Optional, default is 1.
 `date_min` | Oldest date (inclusive) of results to be returned, in format `YYYY-mm-dd`. Optional.
 `date_max` | Most recent date (inclusive) of results to be returned, in format `YYYY-mm-dd`. Optional.

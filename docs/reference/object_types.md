@@ -86,7 +86,7 @@ Correlations are a measure of the relationship between two variables. A positive
 
 Correlation values vary between -1 and +1 with 0 implying no correlation. Correlations of -1 or +1 imply an exact linear relationship.
 
-P-values are a way of determining confidence in the result. A value lower than 0.05 is generally considered "statistically significant".
+P-values are a way of determining confidence in the result. A value lower than 0.05 is generally considered "statistically significant". We provide a user-friendly `stars` integer which maps to the P-value, where 5 stars indicates a value well below 0.05.
 
 We create simple English sentences to represent each possible correlation as a combination of attributes.
 
@@ -150,7 +150,7 @@ the other decreases (*time active*).
 
 ## Insights
 
-Insights are interesting events found within the user's data. These are not triggered by the user but generated automatically if the values for an attribute fits an insight type's criteria. Typically these fall into a few categories: day-level events, for example, yesterday was the highest or lowest steps value in however many days; and week and month-level events, like summaries of total steps walked for the month. If an insight is relevant to a specific day it will contain a `target_date` value.
+Insights are interesting events found within the user's data. These are not triggered by the user but generated automatically if the values for an attribute fit an insight type's criteria. Typically these fall into a few categories: day-level events, for example, yesterday was the highest or lowest steps value in however many days; and week and month-level events, like summaries of total steps walked for the month. If an insight is relevant to a specific day it will contain a `target_date` value.
 
 Insights have a priority where `1` is highest and means real-time, `2` is day-level, `3` is week, and `4` is month.
 
@@ -184,7 +184,7 @@ HTML and text output is provided.
 
 ## Averages
 
-Averages are generated weekly and are the basis of our goal system. For attributes that don't warrant a specific related `attribute_name_goal` attribute, the average is used to create the "end value" of the attribute's progress bar in our dashboard — meaning each day, users are being shown their progress relative to their usual behaviour. We break down averages by day of the week but also record the overall average. As we keep historical data this allows us to plot "rolling averages" showing changes in attribute values. The data set for finding the average is always the last 60 days' data.
+Averages are generated weekly and are the basis of our goal system. In our clients, the average is used to create the "end value" of the attribute's progress bar for a single day — meaning each day, users are being shown their progress relative to their usual behaviour. We break down averages by day of the week but also record the overall average. As we keep historical data this allows us to plot "rolling averages" showing changes in attribute values. The data set for finding the average is always the last 60 days' data.
 
 **Note:** these are actually medians, but we use "average" as it's simpler to explain to users. Please also use this terminology.
 
@@ -215,7 +215,7 @@ All the "official" attributes we currently support. Templated attributes are tre
 
 The group an attribute belongs to may change in future, but attribute names should be considered stable.
 
-Remember all data must be sent, and is stored and returned, in metric units. Imperial conversion should occur when rendering as required.
+**Remember all data for templated attributes must be sent, and is stored and returned, in metric units.** Imperial conversion should occur when rendering as required.
 
 See [attribute definition](#attributes).
 
@@ -302,7 +302,7 @@ Name                | Group        | Value type description         | Value type
 
 ## Attribute value types
 
-These are the allowed types of values an attribute can store.
+These are the allowed types of values an attribute can store. Each attribute has a single, fixed value type.
 
 Value type description         | Value type 
 -------------------------------|-----------
@@ -321,7 +321,7 @@ Scale (1-9 as integer)		   | `8`
 ## Custom tags
 
 
-Custom tags are booleans represented as integer type attributes (`0` or `1`) within the `custom` group, and are user-defined so unable to be listed here. Examples include tags like `meditation`, `tired`, and `sex`. 
+Custom tags are booleans type attributes represented as integers (`0` or `1`) within the `custom` group, and are user-defined so unable to be listed here. Examples include tags like `meditation`, `tired`, and `sex`. 
 
 To correctly get all tags for a day, collect all attributes:
 

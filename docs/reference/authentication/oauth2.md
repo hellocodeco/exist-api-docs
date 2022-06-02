@@ -28,7 +28,8 @@ Be responsible and request as few scopes as required to provide your necessary f
 | `mood_read` | Mood group |
 | `sleep_read` | Sleep group |
 | `workouts_read` | Workouts group |
-| `events_read` | Finance group |
+| `events_read` | Events group |
+| `finance_read` | Finance group |
 | `food_read` | Food and drink group |
 | `health_read` | Health and body group |
 | `location_read` | Location group |
@@ -43,7 +44,8 @@ Be responsible and request as few scopes as required to provide your necessary f
 | `mood_write` | Mood group |
 | `sleep_write` | Sleep group |
 | `workouts_write` | Workouts group |
-| `events_write` | Finance group |
+| `events_write` | Events group |
+| `finance_write` | Finance group |
 | `food_write` | Food and drink group |
 | `health_write` | Health and body group |
 | `location_write` | Location group |
@@ -127,7 +129,7 @@ Returns JSON if your request was successful:
     "token_type": "Bearer",
      "expires_in": 31535999, 
      "refresh_token": "ac45027ad037f53b3ce91be272b163f55a4a87e9", 
-     "scope": "your_scopes" 
+     "scope": "activity_read activity_write" 
 }
 ```
 
@@ -165,7 +167,7 @@ Returns JSON if your request was successful:
   "token_type": "Bearer", 
   "expires_in": 31535999, 
   "refresh_token": "ac45027ad037f53b3ce91be272b163f55a4a87e9", 
-  "scope": "read write read+write" 
+  "scope": "activity_read activity_write" 
 }
 ```
 

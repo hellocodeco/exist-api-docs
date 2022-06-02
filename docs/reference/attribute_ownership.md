@@ -12,7 +12,7 @@ The process of acquiring an attribute only needs to happen once, not each time t
 
 ## Acquire attributes
 
-Acquiring an attribute makes your client the owner of the attribute. This allows a service to update attribute data for these attributes. Users do not have to approve this (mostly because this would be cumbersome) so please explain/confirm this behaviour with users within your own application. Acquiring a templated attribute the user doesn't have yet **will create this attribute** and give you ownership.
+Acquiring an attribute makes your client the owner of the attribute. This allows a service to write values for this attribute. Users do not have to approve this (mostly because this would be cumbersome) so please explain/confirm this behaviour with users within your own application. Acquiring a templated attribute the user doesn't have yet **will create this attribute** and give you ownership.
 
 ### Request
 
@@ -47,7 +47,7 @@ Name  | Description
 `name` | The attribute name, eg. `mood_note`
 `manual` | Boolean flag to set this attribute as manually updated or not
 `allow_user_defined` | Boolean flag in query parameters to allow non-templated attributes
-`success_objects` | Boolean flag in query parameters which, if set, provides a full attribute object for each successful acquisition
+`success_objects` | Boolean flag in query parameters which, if set, provides a full attribute object in the response for each successful acquisition
 
 To learn more about when you might want to use `allow_user_defined`, read about this topic [in the guide](/guide/write_client/).
 

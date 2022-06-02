@@ -31,7 +31,7 @@ Returns a paged list of all correlations generated in the last week, optionally 
 
 Name  | Description
 ------|--------
-`limit` | Number of values to return per page, starting with today. Optional, max is 100.
+`limit` | Number of values to return per page. Optional, max is 100.
 `page`  | Page index. Optional, default is 1.
 `strong` | Boolean flag, set to `1` to return only correlations above a certain relationship strength
 `confident` | Boolean flag, set to `1` to return only correlations with a five-star confidence
@@ -139,7 +139,11 @@ Returns a single correlation object or a HTTP status `404` result with an error 
   "stars_description": "Almost certainly related",
   "description": null,
   "occurrence": null,
-  "rating": null
+  "rating": {
+    "positive": true,
+    "rating_type": 50,
+    "rating": "Useful"
+  }
 }
 ```
 

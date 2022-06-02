@@ -96,7 +96,7 @@ The attributes must already exist and be owned by your service.
 
 Valid values are described by the attribute's `value_type` and `value_type_description` fields. However, values are only validated broadly by type and so care must be taken to send correct data. Do not rely on Exist to validate your values beyond enforcing the correct type. **This endpoint will not allow incrementing string, scale, or time of day attributes.**
 
-Check value types for each attribute in [list of supported attributes](#list-of-attributes).
+Check value types for each attribute in [list of supported attributes](/reference/object_types/#list-of-attribute-templates).
 
 
 ### Request

@@ -36,7 +36,8 @@ nav:
     - "Reading your data": guide/read_client.md
     - "Writing new data": guide/write_client.md
     - "Sharing your integration": guide/integration.md
-    - "Considerations": guide/considerations.md
+    - "Best practices": guide/best_practices.md
+    - "Migrating from API 1": guide/migrating.md
     - "Support": guide/support.md
   - "Reference": 
     - "Important values": reference/important_values.md

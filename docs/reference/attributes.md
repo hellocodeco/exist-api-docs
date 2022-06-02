@@ -32,9 +32,9 @@ All parameters are optional.
 
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer for paging the results |
+| `page` | Page index. Optional, default is 1. |
 | `limit` | Integer defining how many results to a page |
-| `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` > 10 |
+| `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` >= 10 |
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 
 
@@ -107,14 +107,14 @@ All parameters are optional.
 
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer for paging the results |
+| `page` | Page index. Optional, default is 1. |
 | `limit` | Integer defining how many results to a page |
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 | `attributes` | Comma-separated list of attributes to filter by |
 | `exclude_custom` | Boolean flag, set to `true` to only show templated attributes |
 | `manual` | Boolean flag, set to `true` to only show manual attributes |
 | `include_inactive` | Boolean flag, set to `true` to include attributes with `active = False`, usually hidden |
-| `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` > 10 |
+| `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` >= 10 |
 | `owned` | Boolean flag, set to `true` to omit attributes not owned by this client |
 
 ### Response
@@ -194,7 +194,7 @@ If filtering is needed, then rather than using both, you would use one or the ot
 
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer for paging the results |
+| `page` | Page index. Optional, default is 1. |
 | `limit` | Integer defining how many results to a page |
 | `days`  | Integer defining how many day values to include in `values`, max 31, default 1 |
 | `date_max` | `"yyyy-mm-dd"` date string defining the maximum date in `values` |

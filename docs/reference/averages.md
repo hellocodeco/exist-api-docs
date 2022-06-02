@@ -32,10 +32,10 @@ By default, without any parameters, you'll receive the most recent set of averag
 
 | Parameter | Description |
 |-----------|-------------|
-| `page` | Integer for paging the results |
+| `page` | Page index. Optional, default is 1. |
 | `limit` | Integer defining how many results to a page |
-| `date_min` | `"yyyy-mm-dd"` date string defining the minimum (oldest) date |
-| `date_max` | `"yyyy-mm-dd"` date string defining the maximum (most recent) date |
+| `date_min` | `"yyyy-mm-dd"` date string defining the minimum (oldest) date inclusive |
+| `date_max` | `"yyyy-mm-dd"` date string defining the maximum (most recent) date inclusive |
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 | `attributes` | Comma-separated list of attributes to filter by |
 | `include_historical` | Optional boolean, set `true` to receive historical records also
