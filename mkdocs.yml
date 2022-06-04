@@ -9,6 +9,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.expand
+    - content.tabs.link
   logo: assets/logo.png
 extra_css:
   - stylesheets/extra.css
