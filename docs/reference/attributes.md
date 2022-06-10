@@ -210,7 +210,7 @@ Note the inclusion of the `values` array, which contains date/value pairs.
 ```json
 {
   "count": 98,
-  "next": "http://exist.athena.lan/api/2/attributes/with-values/?page=2",
+  "next": "https://exist.io/api/2/attributes/with-values/?page=2",
   "previous": null,
   "results": [
     {
