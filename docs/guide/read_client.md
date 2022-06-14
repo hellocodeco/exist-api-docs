@@ -3,7 +3,7 @@ In this section of the guide we'll build a read-only client, capable of retrievi
 
 ## Getting a token
 
-To be able to read our own personal data from Exist, we need to authenticate ourselves, so Exist knows who we are. Let's start with the simplest method of authentication, which Exist calls *simple token authentication*.
+To be able to read our own personal data from Exist, we need to authenticate ourselves, so Exist knows who we are. Let's start with the simplest method of authentication, which Exist calls *simple token authentication*. We'll ask for a unique token that identifies us, and then add it to each subsequent request so Exist can use it to know who we are.
 
 Let's make a request to the simple token endpoint, using the `requests` library, exchanging our username and password for a token we can use to authenticate ourselves with the API. 
 
@@ -163,7 +163,7 @@ Okay, now we know what the JSON looks like, let's modify our code to instead pri
             # grab the fields we want from the json
             label = attribute['label']
             value = attribute['values'][0]['value']
-            # and store them
+            # and store them as key/value
             attributes[label] = value
         
         # print today's date
@@ -185,7 +185,7 @@ Steps goal: 3531
 Productive time: 83
 Distracting time: 9
 Neutral time: 9
-Productive min goal: 80
+Productive time goal: 80
 alcohol: 0
 bad sleep: 0
 baking: 0
@@ -234,7 +234,7 @@ But what we're printing is only the first page, so it's not every attribute. Let
       else:
         print("Error!", response.content)
 
-    # request the first page
+    # start here by requesting the first page
     get_page(1)
 
     # print today's date
@@ -271,13 +271,99 @@ Weather summary: Mostly cloudy throughout the day.
 Weather icon: rain
 ```
 
-Now we're printing every attribute and its value for today. We have a very basic terminal client for Exist!
+Now we're printing every attribute and its value for today. We have a very basic terminal client for Exist! Each time we run it, it will print the current values for the current day for all of our attributes.
 
 ### Getting all tags for a day
 
-Let's say we'd like to display a list of tags that were used for a particular day. We've already seen that we can retrieve tags and their values, so this shouldn't be much more complicated.
+Let's up the stakes and say we'd like to display a list of tags that were used, for a particular date we request. We've already seen that we can retrieve tags and their values, so this shouldn't be much more complicated.
 
+We'll use the same API endpoint but this time we'll add some filters to the output. We'll ask for just the `custom` group, where all tags reside, and we'll set the `date_max` to a date of our choice, meaning the values we get back start at that (newest) date. With this parameter and the default limit of one day of data, we'll get a single `value` for each attribute that will match the date we ask for.
 
+Every tag that has a `value` of `1` was used on this day, so we just need to collect the labels of every tag with this value and we're done.
+
+=== "get_tags.py"
+
+    ```python
+    import requests
+    import datetime
+
+    TOKEN = "[your_token]"
+  
+    url = 'https://exist.io/api/2/attributes/with-values/'
+    
+    attributes = [] # we only need an array this time
+
+    def get_page(date, page):
+        # we received a date object, but the API takes a string of the format YYYY-mm-dd
+        # so let's convert our date to the right format
+        date_string = date.strftime("%Y-%m-%d")
+
+        # note the new parameter filtering the group and the maximum date
+        response = requests.get(url, params={'page':page, 'limit':100, 'groups':'custom', 'date_max':date_string}, headers={'Authorization': f'Token {TOKEN}'})
+      
+        if response.status_code == 200:
+            # parse the response body as json
+            data = response.json()
+            
+            # collect the data we want into a dict
+            for attribute in data['results']:
+                # there may not be a value, so let's try it and ignore any errors
+                try:
+                    # grab the value so we can check it
+                    value = attribute['values'][0]['value']
+                    # check that the tag was used
+                    if value == 1:
+                        # get and store the label
+                        label = attribute['label']
+                        attributes.append(label)
+                except:
+                    continue
+
+            # if there's a value for 'next', then let's get the next page
+            if data['next'] is not None:
+                # call this function again with the next page number
+                get_page(date, page+1)
+
+        else:
+            print("Error!", response.content)
+
+    def get_date():
+
+        # ask for a date string
+        date_input = input("Date (format yyyy-mm-dd): ")
+        try:
+            # try converting the string into a date object
+            date = datetime.datetime.strptime(date_input, "%Y-%m-%d").date()
+            return date
+        except:
+            return
+
+    # this is where our code starts executing when we run the script
+    date = get_date()
+
+    if date is None:
+        print("Bad date input")
+    else:
+        # request the first page
+        get_page(date, 1)
+
+        # print a nicely formatted version of the date
+        print(date.strftime("%A %d %B %Y").upper())
+        # now print our attributes as a comma-delimited list
+        print(", ".join(attributes))
+    ```
+
+If we save that (adding our token), run it, and enter a date, we'll see a list of tags for that day:
+
+```
+Date (format yyyy-mm-dd): 2022-06-12
+SUNDAY 12 JUNE
+bad sleep, camera, guitar, late to sleep, mask, melatonin, socialising, walk
+```
+
+Again, we get these attributes back in the correct order "for free".
+
+So by this point we know how to print a list of attributes and their values, a list of tags used for a day, and how to request a specific date!
 
 ## Getting averages
 
