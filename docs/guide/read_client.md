@@ -363,11 +363,162 @@ bad sleep, camera, guitar, late to sleep, mask, melatonin, socialising, walk
 
 Again, we get these attributes back in the correct order "for free".
 
-So by this point we know how to print a list of attributes and their values, a list of tags used for a day, and how to request a specific date!
+So by this point we know how to print a list of attributes and their values, a list of tags used for a day, and how to request a specific date! We've learned a few more approaches for working with attributes.
 
 ## Getting averages
 
+Every week Exist saves updated averages for each numeric attribute, one "overall" average as well as an average for each day of the week. One place this is used is as the "goal value" for progress bars in Exist client apps. To show the goal for the `steps` attribute on a Monday, for example, we'd get `steps`' averages and use the `monday` value.
+
+We can get averages by making a `GET` request to `https://exist.io/api/2/averages/`. If we do this with no other parameters, we see a paged list of JSON objects representing each attribute's averages:
+
+```json
+{
+    "count": 71,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "user_attribute": "steps",
+            "date": "2022-06-12",
+            "overall": 3531.0,
+            "monday": 5155.0,
+            "tuesday": 2403.0,
+            "wednesday": 2637.0,
+            "thursday": 4219.0,
+            "friday": 3531.0,
+            "saturday": 4062.0,
+            "sunday": 2886.0
+        },
+        {
+            "user_attribute": "tracks",
+            "date": "2022-06-12",
+            "overall": 9.0,
+            "monday": 6.0,
+            "tuesday": 9.0,
+            "wednesday": 2.0,
+            "thursday": 21.0,
+            "friday": 14.0,
+            "saturday": 0.0,
+            "sunday": 0.0
+        },
+```
+
+So now that we know what the format looks like, we can put this together with our previous work on reading attribute values to show the progess for one attribute for today. We'll ask the user the `name` of an attribute, get its current value, get its average, and then print their progress for the day. We'll use the `attributes` parameter to filter this endpoint to specific list of attributes — in this case, the single name we ask for.
+
+=== "show_progress.py"
+
+    ```python
+    import requests
+    import datetime
+
+    TOKEN = "[your_token]"
+  
+    def get_average(name):
+        """
+        Gets the average for the current day of the week.
+        """
+
+        today = datetime.date.today()  # get today's date
+        weekday_code = today.weekday()  # get today's day of the week, where monday = 0
+
+        # make an array of the weekday keys, where monday is also 0, and so on
+        weekdays = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
+
+        # get the value we'll use to look up today's average by indexing the array with the current weekday
+        weekday = weekdays[weekday_code]
+
+        url = 'https://exist.io/api/2/averages/'
+
+        response = requests.get(url, params={'attributes':name}, headers={'Authorization':f'Token {TOKEN}'})
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                # get the first object, our one attribute's average
+                average = data['results'][0]  
+                # use our key to get the right value for today
+                return average[weekday]
+            except:
+                # we assume all the fields we need are present
+                # but if they're not, an exception will be thrown
+                # so let's handle it very generally.
+                print("Couldn't get average")
+        else:
+            print("Error!", response.content)
+
+    def get_attribute(name):
+        """
+        Gets the attribute's label and current value for today.
+        """
+
+        result = {} # make an empty dictionary to store what we'll return
+
+        # we're using the same attribute data call from the previous step
+        url = 'https://exist.io/api/2/attributes/with-values/'
+
+        response = requests.get(url, params={'attributes':name}, headers={'Authorization':f'Token {TOKEN}'})
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                attribute = data['results'][0]
+                result['label'] = attribute['label']
+                result['value'] = attribute['values'][0]['value']
+                return result
+            except:
+                # we're expecting some fields to be there, but they may not be, 
+                # which would raise an exception
+                # so let's just handle any failure very generally
+                print("Couldn't get attribute")
+        else:
+            print("Error!", response.content)
+
+    # running the script starts execution here
+    name = input("Attribute name: ")
+
+    # call our functions
+    attribute = get_attribute(name)
+    average = get_average(name)
+
+    # make sure both calls succeeded
+    if attribute is not None and average is not None:
+
+        # make a progress percentage
+        percent = round((attribute['value'] / average) * 100)
+
+        # get today's date to use for a header in our output
+        today = datetime.date.today()
+
+        # print it all
+        print(today.strftime("%A %d %B %Y").upper())
+        print(f"{attribute['label']}: {attribute['value']} / {average} ({percent}%)")
+
+    ```
+
+Save this script as `get_progress.py` (make sure to insert your correct token!), run it with `python3 get_progress.py`, and you'll see an output something like this:
+
+```
+Attribute name: steps
+FRIDAY 17 JUNE 2022
+Steps: 619 / 3531.0 (18%)
+```
+
+It's Friday for me today, so looking back at the example averages output a bit further up, you'll see that we correctly chose the `friday` value as the goal for today.
+
+This won't format values nicely, so if you use a duration or a percentage, for example, these will show the raw integer or float values. But otherwise, we now have a nice way of using a current average to show our progress for today against our recent activity for the same day of the week.
+
+
 ### Showing long-term trends
+
+In Exist, these average values are used to show graphs of long-term trends. Because averages are saved weekly, we can plot each `overall` value on a graph and show how the average has changed over time. Drawing a graph is outside the scope of this tutorial, but we can at least tabulate this data to show the change in raw numeric values.
+
+We'll use the same averages endpoint as before, again filtering for just the one attribute, but this time we'll add the `include_historical` parameter to retrieve a list of past averages for the attribute. 
+
+=== "show_trend.py"
+
+    ```python
+    import requests
+    import datetime
+    ```
+
 
 ## Showing correlations
 
