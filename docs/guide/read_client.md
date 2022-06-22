@@ -508,17 +508,110 @@ This won't format values nicely, so if you use a duration or a percentage, for e
 
 ### Showing long-term trends
 
-In Exist, these average values are used to show graphs of long-term trends. Because averages are saved weekly, we can plot each `overall` value on a graph and show how the average has changed over time. Drawing a graph is outside the scope of this tutorial, but we can at least tabulate this data to show the change in raw numeric values.
+In Exist, these average values are used to show graphs of long-term trends. Because averages are saved weekly, we can plot each `overall` value on a graph and show how the average has changed over time. Drawing a proper graph is outside the scope of this tutorial, but we can at least tabulate this data and draw a simple bar graph in the terminal.
 
-We'll use the same averages endpoint as before, again filtering for just the one attribute, but this time we'll add the `include_historical` parameter to retrieve a list of past averages for the attribute. 
+We'll use the same averages endpoint as before, again filtering for just the one attribute, but this time we'll add the `include_historical` parameter to retrieve a list of past averages for the attribute. Instead of only returning this week's averages, we'll get back a paged list of all averages, back to the first one ever created for us when we created this attribute. We don't need all of those, though, so we'll use the `limit` parameter and only fetch the first page of results.
+
 
 === "show_trend.py"
 
     ```python
     import requests
     import datetime
+
+    TOKEN = "[your_token]"
+
+    def get_averages(name):
+        """
+        Gets a set of recent averages for an attribute.
+        """
+        url = 'https://exist.io/api/2/averages/'
+
+        # we'll ask for 26 results (26 weeks = half a year)
+        response = requests.get(url, params={'attributes':name, 'include_historical':1, 'limit':26}, headers={'Authorization':f'Token {TOKEN}'})
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                averages = {} # make a dictionary to hold our results
+                
+                for obj in data['results']: # loop over each average object
+                    # make a date object from the date string we receive
+                    date = datetime.datetime.strptime(obj['date'], "%Y-%m-%d").date()
+                    overall = obj['overall']
+                    # store the fields we care about
+                    averages[date] = overall
+                
+                return averages
+            except:
+                # we assume all the fields we need are present
+                # but if they're not, an exception will be thrown
+                # so let's handle it very generally.
+                print("Couldn't get average")
+        else:
+            print("Error!", response.content)
+
+    def make_bar_graph(value, maximum):
+        """
+        Makes an ascii bar graph bar scaled relative to the max value.
+        """
+        bar_len = 40
+        filled_len = int(round(bar_len * value / maximum))
+        # make a string of equals signs for the value
+        # and fill the rest of the bar with hyphens
+        bar = '=' * filled_len + '-' * (bar_len - filled_len)
+        return bar
+
+    
+    # execution begins here
+    name = input("Attribute name: ")
+    averages = get_averages(name)
+    
+    if averages: # only print if we didn't get an error
+        max_average = max(averages.values())
+
+        for raw_date, value in averages.items():
+            date = raw_date.strftime("%d %b %Y")
+            bar = make_bar_graph(value, max_average)
+            # print the formatted date, value, and graph with tabs to align them
+            print(f"{date}:\t{value}\t{bar}")
+    else:
+        print("No averages to display.")
     ```
 
+
+As usual, save this script as `show_trend.py` (make sure to insert your correct token!), run it with `python3 show_trend.py`, and you'll see something like this for your chosen attribute:
+
+```
+Attribute name: tracks
+19 Jun 2022:    4.0     ===============-------------------------
+12 Jun 2022:    3.0     ===========-----------------------------
+05 Jun 2022:    1.0     ====------------------------------------
+29 May 2022:    2.0     =======---------------------------------
+22 May 2022:    3.0     ===========-----------------------------
+15 May 2022:    5.0     ==================----------------------
+08 May 2022:    5.0     ==================----------------------
+01 May 2022:    10.0    ====================================----
+24 Apr 2022:    9.0     =================================-------
+17 Apr 2022:    10.0    ====================================----
+10 Apr 2022:    9.0     =================================-------
+03 Apr 2022:    9.0     =================================-------
+27 Mar 2022:    11.0    ========================================
+20 Mar 2022:    10.0    ====================================----
+13 Mar 2022:    8.0     =============================-----------
+06 Mar 2022:    6.0     ======================------------------
+27 Feb 2022:    6.0     ======================------------------
+20 Feb 2022:    6.0     ======================------------------
+13 Feb 2022:    6.0     ======================------------------
+06 Feb 2022:    6.0     ======================------------------
+30 Jan 2022:    6.0     ======================------------------
+23 Jan 2022:    6.0     ======================------------------
+16 Jan 2022:    6.0     ======================------------------
+09 Jan 2022:    6.0     ======================------------------
+02 Jan 2022:    8.0     =============================-----------
+26 Dec 2021:    9.0     =================================-------
+```
+
+Nice, right? Now we know how to request both current and historical averages and the sort of things they're good for.
 
 ## Showing correlations
 
