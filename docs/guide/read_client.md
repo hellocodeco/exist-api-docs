@@ -367,7 +367,7 @@ So by this point we know how to print a list of attributes and their values, a l
 
 ## Getting averages
 
-Every week Exist saves updated averages for each numeric attribute, one "overall" average as well as an average for each day of the week. One place this is used is as the "goal value" for progress bars in Exist client apps. To show the goal for the `steps` attribute on a Monday, for example, we'd get `steps`' averages and use the `monday` value.
+Every week Exist saves updated averages for each numeric attribute, one "overall" average as well as an average for each day of the week. One place this is used is as the "goal value" for progress bars in Exist client apps. To show the goal for the `steps` attribute on a Monday, for example, we'd get `steps`'s averages and use the `monday` value.
 
 We can get averages by making a `GET` request to `https://exist.io/api/2/averages/`. If we do this with no other parameters, we see a paged list of JSON objects representing each attribute's averages:
 
@@ -528,7 +528,8 @@ We'll use the same averages endpoint as before, again filtering for just the one
         url = 'https://exist.io/api/2/averages/'
 
         # we'll ask for 26 results (26 weeks = half a year)
-        response = requests.get(url, params={'attributes':name, 'include_historical':1, 'limit':26}, headers={'Authorization':f'Token {TOKEN}'})
+        response = requests.get(url, params={'attributes':name, 'include_historical':1, 'limit':26}, 
+                                headers={'Authorization':f'Token {TOKEN}'})
         if response.status_code == 200:
             try:
                 data = response.json()
@@ -614,6 +615,108 @@ Attribute name: tracks
 Nice, right? Now we know how to request both current and historical averages and the sort of things they're good for.
 
 ## Showing correlations
+
+Correlations describe a relationship between two different attributes. An example might be "You have a better day when you walk more", where this is a relationship between `mood` and `steps`.
+
+We can retrieve all of the most recent correlations by sending a `GET` request to `https://exist.io/api/2/correlations/`. We'll get another paged result that looks like this:
+
+```json
+{
+    "count": 394,
+    "next": "https://exist.io/api/2/correlations/?page=2",
+    "previous": null,
+    "results": [
+        {
+            "date": "2022-06-20",
+            "period": 300,
+            "offset": -1,
+            "attribute": "bad_sleep",
+            "attribute2": "coffee",
+            "value": 0.7059233380455165,
+            "p": 1.5026407410821477e-46,
+            "percentage": 70.59233380455166,
+            "stars": 5,
+            "second_person": "you tag 'coffee' more on days after you tag 'bad sleep' more.",
+            "second_person_elements": [
+                "you tag 'coffee' more",
+                "on days after",
+                "you tag 'bad sleep' more"
+            ],
+            "attribute_category": null,
+            "strength_description": "Nearly always go together",
+            "stars_description": "Certain to be related",
+            "description": null,
+            "occurrence": null,
+            "rating": null
+        }
+    ]
+}
+```
+
+We can see each correlation has a lot of different properties including the sentence describing it, the `attribute`s in question, and some values for the strength as a `percentage`, and the confidence in `stars`, where 5 stars is the most confident.
+
+Let's say that, given the name of an attribute, we'd like to retrieve and display a set of its most confident correlations — that is, those least likely to be incorrect or just random chance. We can filter this endpoint by using `confident=1` and `attribute=[name]` to get a list of correlations that fit what we're after.
+
+=== "show_correlations.py"
+
+    ```python
+    import requests
+    import datetime
+
+    TOKEN = "[your_token]"
+
+    def get_correlations(name):
+        url = "https://exist.io/api/2/correlations/"
+
+        response = requests.get(url, params={'confident':1, 'attribute':name, 'limit':10}, 
+                                headers={'Authorization':f'Token {TOKEN}'})
+
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                correlations = [] # make an array to hold our results
+                
+                for obj in data['results']: # loop over each correlation object
+                    correlation = {} # make a new object to hold only the fields we want
+                    correlation['text'] = obj['second_person']
+                    correlation['percentage'] = int(obj['percentage']) # round this to an integer
+                    correlations.append(correlation)
+                
+                return correlations
+            except:
+                # we assume all the fields we need are present
+                # but if they're not, an exception will be thrown
+                # so let's handle it very generally.
+                print("Couldn't get correlations")
+        else:
+            print("Error!", response.content)
+    
+
+    # when we run the script, execution begins here 
+    name = input("Attribute: ")
+
+    correlations = get_correlations(name)
+    if correlations:
+        for c in correlations:
+            print(f"{c['text']} ({c['percentage']}%)")
+    ```
+
+If we save that script and *[audience chants the catch phrase]* Insert! Our! Token!, and run it with `python3 show_correlations.py`, we'll get something like this:
+
+```
+Attribute: caffeinated_drink
+you go to bed later on days after you tag 'caffeinated drink' more. (29%)
+you tag 'late to sleep' more on days after you tag 'caffeinated drink' more. (28%)
+you tag 'caffeinated drink' more when it's the weekend. (19%)
+you tag 'bad sleep' more on days after you tag 'caffeinated drink' more. (17%)
+you tag 'mowing' more when you tag 'caffeinated drink' more. (14%)
+you have a better day when you tag 'caffeinated drink' more. (12%)
+```
+
+You can see that I really need to avoid caffeine if I want to get to sleep at a decent hour. But it does make my mood better, so what's a guy to do?
+
+So now we have a way of finding and displaying correlations for an attribute.
+
 
 ### Finding a particular correlation
 
