@@ -1,5 +1,7 @@
 
-In this section of the guide we'll build a read-only client, capable of retrieving personal data from an Exist account and printing it to the terminal. I'm using Python 3.8, but Python 3.6 or newer should be fine.
+In this section we'll write simple Python scripts to retrieve our personal data from Exist and print it to the terminal. Along the way we'll learn about getting a token, authenticating ourselves, and some of the more common ways of interacting with the Exist API to retrieve data. This should build a good foundation for using the Exist API in a read-only fashion, perhaps to build a personal client, store and display our data on a personal website, or as the basis of creating a full read/write client.
+
+Our code examples will be in Python, and you're encouraged to copy and paste them, save them, and run them yourself! I'm using Python 3.8, but Python 3.6 or newer should be fine.
 
 ## Getting a token
 
@@ -32,7 +34,7 @@ The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` a
 
     ```
 
-We can save this script as `get_token.py`, run it with `python get_token.py`, and interactively enter our username and password. The script then prints out our token, and we can save this to use in future scripts. This token won't expire so we can hard-code it into personal scripts with impunity. 
+We can save this script as `get_token.py` (wherever you like), run it from the command line with `python get_token.py`, and interactively enter our username and password. The script then prints out our token, and we can save this to use in future scripts. This token won't expire so we can hard-code it into personal scripts with impunity. 
 
 !!! note "Warning!"
     Don't share this token publicly! Anyone can use it to read your Exist data.
@@ -616,7 +618,7 @@ Nice, right? Now we know how to request both current and historical averages and
 
 ## Showing correlations
 
-Correlations describe a relationship between two different attributes. An example might be "You have a better day when you walk more", where this is a relationship between `mood` and `steps`.
+Correlations describe a relationship between two different attributes and how they go together. An example might be "You have a better day when you walk more", where this is a positive relationship between `mood` and `steps`. Correlations get generated weekly based on up to a year of past data.
 
 We can retrieve all of the most recent correlations by sending a `GET` request to `https://exist.io/api/2/correlations/`. We'll get another paged result that looks like this:
 
@@ -715,11 +717,84 @@ you have a better day when you tag 'caffeinated drink' more. (12%)
 
 You can see that I really need to avoid caffeine if I want to get to sleep at a decent hour. But it does make my mood better, so what's a guy to do?
 
-So now we have a way of finding and displaying correlations for an attribute.
+So now we have a way of finding and displaying a list correlations for an attribute.
 
 
 ### Finding a particular correlation
 
+Let's say we'd like to find the relationship between two known attributes — that is, we're looking for one specific correlation. It might not exist, because not everything we track is related to everything else. For example, there may be no relationship between how many tracks you listen to and how long you're asleep, because you listen to a similar amount every day. But that's something we can uncover by asking for a correlation that's a specific combination of attributes, and seeing what we get back.
+
+In this instance we'll `GET` the `https://exist.io/api/2/correlations/combo/` endpoint, passing `attribute` and `attribute2` parameters (in any order). If there's no result, we'll get a  HTTP 404 (Not Found) status code, so we'll need to handle that too.
+
+=== "find_correlation.py"
+
+    ```python
+    import requests
+
+    TOKEN = "[your_token]"
+
+    def get_correlation(name1, name2):
+        url = "https://exist.io/api/2/correlations/combo/"
+
+        response = requests.get(url, params={'attribute':name1, 'attribute2':name2},
+                                headers={'Authorization':f'Token {TOKEN}'})
+        if response.status_code == 404:
+            return None
+        
+        if response.status_code == 200:
+            return response.json() # our json is just the correlation object
+        else:
+            print("Error!", response.content)
+
+    
+    # execution begins here
+    name1 = input("Attribute 1: ")
+    name2 = input("Attribute 2: ")
+
+    correlation = get_correlation(name1, name2)
+    if correlation:
+        # we got a result
+        text = correlation['second_person']
+        percentage = int(correlation['percentage']) # round this to an integer
+        print(f"{text} ({percentage}%)")
+    else:
+        # we didn't
+        print("No correlation found.")
+    ```
+
+This is pretty simple, right? We can save this file, insert our own token for `TOKEN`, run it with `python3 find_correlations.py`, and we'll see an interface for finding a correlation:
+
+```
+Attribute 1: mood
+Attribute 2: walk
+you have a better day when you tag 'walk' more. (24%)
+```
+
+
 ## Scheduling regular updates
 
-[Part two: writing data :material-arrow-right:](/guide/write_client/)
+At this point, we've covered all of the essentials for reading core data types from Exist using a personal token. I hope you've found it useful!
+
+I wanted to end by talking about the next stage of development, when you have something more complicated than a single Python script and you want to retrieve your data more regularly. (You'll probably use something like `cron` to schedule regular calls to your program, but how you do that is outside the scope of this guide.)
+
+First of all, remember that once you have your token, it doesn't expire, so there's no need to request a new one each time you run your script or make an API call.
+
+Secondly, only use what you need — consider how regularly you need this data, or how up-to-date it needs to be, and don't schedule your script to run any more frequently than this. **Don't make API calls too frequently.**
+
+!!! note
+    Don't run your script more often than you need to.
+
+Most data from our integrations in Exist only updates every hour, and some are less than that. Manually-entered data can update more frequently depending on how you use Exist, but a good rule of thumb is that, if you need timely data, making a request **once an hour is enough**.
+
+!!! note
+    Once an hour is enough.
+
+Of course, if you don't need it to be up-to-date throughout the day, running your script *once a day* should be enough. 
+
+We've had some folks making automated API calls to retrieve their data on every minute of every hour, and there's just no good reason for that. Please don't do it.
+
+
+
+
+
+[Part two: making a write client :material-arrow-right:](/guide/write_client/)
