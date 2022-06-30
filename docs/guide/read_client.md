@@ -9,7 +9,7 @@ To be able to read our own personal data from Exist, we need to authenticate our
 
 Let's make a request to the simple token endpoint, using the `requests` library, exchanging our username and password for a token we can use to authenticate ourselves with the API. 
 
-The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` and `password` and returns a JSON object containing a `token` field.
+The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` and `password` and returns a JSON object containing a `token` field. Note that this is still at `/api/1/` although everything else we'll do will be using the new endpoints at `/api/2/`.
 
 === "get_token.py"
 
@@ -34,7 +34,7 @@ The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` a
 
     ```
 
-We can save this script as `get_token.py` (wherever you like), run it from the command line with `python get_token.py`, and interactively enter our username and password. The script then prints out our token, and we can save this to use in future scripts. This token won't expire so we can hard-code it into personal scripts with impunity. 
+We can save this script as `get_token.py` (wherever you like), run it from the command line with `python3 get_token.py`, and interactively enter our username and password. The script then prints out our token, and we can save this to use in future scripts. This token won't expire so we can hard-code it into personal scripts with impunity. 
 
 !!! note "Warning!"
     Don't share this token publicly! Anyone can use it to read your Exist data.
@@ -483,8 +483,13 @@ So now that we know what the format looks like, we can put this together with ou
     # make sure both calls succeeded
     if attribute is not None and average is not None:
 
-        # make a progress percentage
-        percent = round((attribute['value'] / average) * 100)
+        # we can only do this if we have a value for today
+        if attribute['value'] is not None:
+            # make a progress percentage
+            percent = round((attribute['value'] / average) * 100)
+        else:
+            # our fallback is 0%
+            percent = 0
 
         # get today's date to use for a header in our output
         today = datetime.date.today()
@@ -582,7 +587,7 @@ We'll use the same averages endpoint as before, again filtering for just the one
     ```
 
 
-As usual, save this script as `show_trend.py` (make sure to insert your correct token!), run it with `python3 show_trend.py`, and you'll see something like this for your chosen attribute:
+As usual, save this script as `show_trend.py` (make sure to insert your correct token!), run it with `python3 show_trend.py`, and you'll see something like this for your chosen attribute. I've chosen number of tracks played:
 
 ```
 Attribute name: tracks
@@ -762,7 +767,7 @@ In this instance we'll `GET` the `https://exist.io/api/2/correlations/combo/` en
         print("No correlation found.")
     ```
 
-This is pretty simple, right? We can save this file, insert our own token for `TOKEN`, run it with `python3 find_correlations.py`, and we'll see an interface for finding a correlation:
+This is pretty simple, right? We can save this file, insert our own token for `TOKEN`, run it with `python3 find_correlation.py`, and we'll see an interface for finding a correlation:
 
 ```
 Attribute 1: mood
@@ -784,7 +789,7 @@ Secondly, only use what you need — consider how regularly you need this data, 
 !!! note
     Don't run your script more often than you need to.
 
-Most data from our integrations in Exist only updates every hour, and some are less than that. Manually-entered data can update more frequently depending on how you use Exist, but a good rule of thumb is that, if you need timely data, making a request **once an hour is enough**.
+Most integrations in Exist only update attribute data every hour, and some are less often than that. Manually-entered data can update more frequently depending on how you use Exist, but a good rule of thumb is that, if you need timely data, making a request **once an hour is enough**.
 
 !!! note
     Once an hour is enough.
@@ -792,8 +797,6 @@ Most data from our integrations in Exist only updates every hour, and some are l
 Of course, if you don't need it to be up-to-date throughout the day, running your script *once a day* should be enough. 
 
 We've had some folks making automated API calls to retrieve their data on every minute of every hour, and there's just no good reason for that. Please don't do it.
-
-
 
 
 
