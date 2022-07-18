@@ -22,7 +22,7 @@ Acquiring an attribute makes your client the owner of the attribute. This allows
 === "Shell"
 
     ```shell
-    curl "https://exist.io/api/2/attributes/acquire/" -H "Content-Type: application/json" -H "Authorization: Bearer [your_token]" -X POST -d '[{"name":"mood"}, {"name":"mood_note"}]'
+    curl "https://exist.io/api/2/attributes/acquire/" -H "Content-Type: application/json" -H "Authorization: Bearer [your_token]" -X POST -d '[{"template":"mood"}, {"template":"mood_note"}]'
     ```
 
 === "Python"
@@ -32,7 +32,7 @@ Acquiring an attribute makes your client the owner of the attribute. This allows
 
     url = 'https://exist.io/api/2/attributes/acquire/'
 
-    attributes = [{"name":"mood"}, {"name":"mood_note"}]
+    attributes = [{"template":"mood"}, {"template":"mood_note"}]
 
     response = requests.post(url, headers={'Authorization':'Bearer [your_token]', 'Content-Type':'application/json'},
         data=json.dumps(attributes))
@@ -44,12 +44,15 @@ Clients must send a JSON-encoded array of objects. Maximum is 35 objects in the 
 
 Name  | Description
 ------|--------
+**For templated attributes** ||
+`template` | The name of the [attribute template](/reference/object_types/#list-of-attribute-templates) to use 
+**For acquiring any attribute** ||
 `name` | The attribute name, eg. `mood_note`
+**Other fields**||
 `manual` | Boolean flag to set this attribute as manually updated or not
-`allow_user_defined` | Boolean flag in query parameters to allow non-templated attributes
 `success_objects` | Boolean flag in query parameters which, if set, provides a full attribute object in the response for each successful acquisition
 
-To learn more about when you might want to use `allow_user_defined`, read about this topic [in the guide](/guide/write_client/).
+To learn more about when you might want to `template` vs `name`, read about this topic [in the guide](/guide/write_client/).
 
 ### Response
 

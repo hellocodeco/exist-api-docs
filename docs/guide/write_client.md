@@ -53,10 +53,10 @@ That's it! So for the first step, what we need is the ability to create the corr
 
 *  `response_type=code` to request an auth code in return   
 *  `redirect_uri` with the URL to which Exist returns the user
-*  `scope=scope1+scope2` with the list of scopes we're asking for
+*  `scope` with the list of scopes we're asking for
 *  `client_id` which is our OAuth2 client ID
 
-Let's keep going with our Greatreads example and ask for the `media_write` scope only. Remember that when we created our client app, wee set our redirect URI to `http://localhost:8000/`, so we'll need that same value here.
+Let's keep going with our Greatreads example and ask for the `media_write` scope only. Remember that when we created our client app, we set our redirect URI to `http://localhost:8000/`, so we'll need that same value here.
 
 === "request_authorisation.py"
 
