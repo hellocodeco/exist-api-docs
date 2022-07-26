@@ -1,7 +1,7 @@
 
 In this section we'll write simple Python scripts to retrieve our personal data from Exist and print it to the terminal. Along the way we'll learn about getting a token, authenticating ourselves, and some of the more common ways of interacting with the Exist API to retrieve data. This should build a good foundation for using the Exist API in a read-only fashion, perhaps to build a personal client, store and display our data on a personal website, or as the basis of creating a full read/write client.
 
-Our code examples will be in Python, and you're encouraged to copy and paste them, save them, and run them yourself! I'm using Python 3.8, but Python 3.6 or newer should be fine.
+Our code examples will be in Python, and you're encouraged to copy and paste them, save them, and run them yourself! I'm using Python 3.8, but Python 3.6 or newer should be fine. You'll need to make sure you have the `requests` library [installed](https://requests.readthedocs.io/en/latest/user/install/).
 
 ## Getting a token
 

@@ -1,7 +1,7 @@
 
 In this section we'll make an API client app and write some Python scripts to send data to Exist for our attributes. Along the way we'll learn about OAuth2 clients and the authorisation process, authenticating ourselves, creating and acquiring attributes, and the main ways of interacting with the Exist API to write data. This should build a good foundation for you to use the Exist API to manage the data for an attribute, perhaps as a way of sending data on triggers from other events, or as a regular automated syncing process from another data source.
 
-Our code examples will be in Python, and you're encouraged to copy and paste them, save them, and run them yourself! I'm using Python 3.8, but Python 3.6 or newer should be fine.
+Our code examples will be in Python, and you're encouraged to copy and paste them, save them, and run them yourself! I'm using Python 3.8, but Python 3.6 or newer should be fine. You'll need to make sure you have the `requests` library [installed](https://requests.readthedocs.io/en/latest/user/install/).
 
 You're not required to have read the [read client](/guide/read_client/) section, but here we'll only be dealing with *writing* data, so you may want to consult that section first in order to understand the structure of the data Exist provides.
 
@@ -79,16 +79,83 @@ Let's keep going with our Greatreads example and ask for the `media_write` scope
     print(f"{URL}?{querystring}")
     ```
 
-Copy this, save it to `request_authorisation.py`, and add your own client ID to `CLIENT_ID`. Run it with `python3 request_authorisation.py` and you'll see the URL in your terminal:
+Copy this, save it to `request_authorisation.py`, and add your own client ID to `CLIENT_ID`. Run it with `python3 request_authorisation.py` and you'll see the URL in your terminal (something like, but not the same as, this example):
 
 ```shell
 https://exist.io/oauth2/authorize?client_id=1234abcdef&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F&scope=media_write
 ```
 
-If you follow this URL in your browser (if you can't click it, copy and paste it in), you'll be presented with the authorisation page:
+This is the URL we'd give to any user who wanted to connect our Greatreads app to their Exist account. If we follow this URL in our own browser (if you can't click it, copy and paste it in), we'll be presented with the authorisation page:
+
+![The authorisation page](/img/authorisation.png)
 
 Keep this tab open but don't click "Allow" yet! Exist wants to send a request back to us at `http://localhost:8000/`, and we need to be listening on this port to receive it. That's what we'll write next.
 
+=== "receive_authorisation.py"
+
+    ```python
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    from urllib.parse import urlparse, parse_qs
+    import requests
+
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+    REDIRECT_URI = ''
+
+    # create a class to handle our http request
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            # parse the path of this request into its parts
+            parts = urlparse(self.path)
+            # then parse the query parameters into a dict
+            query = parse_qs(parts.query)
+            # and then get the code we need out of the dict
+            code = query['code'][0]
+            
+            # tell the browser it worked
+            self.send_response(200)
+            self.wfile.write(b'OK!\n')
+            # then get our access token
+            self.get_token(code)
+
+        def get_token(self, code):
+            # make our request using our new code, and some other client details
+            response = requests.post('https://exist.io/oauth2/access_token', {
+                'grant_type':'authorization_code',
+                'code': code,
+                'client_id': CLIENT_ID,
+                'client_secret': CLIENT_SECRET,
+                'redirect_uri': REDIRECT_URI,
+            })
+            # parse the response into json
+            data = response.json()
+            print('Access token:', data['access_token'])
+            print('Refresh token:', data['refresh_token'])
+
+    
+    # create a http server and listen for one request only
+    server_address = ('127.0.0.1', 8000)
+    httpd = HTTPServer(server_address, Handler)
+    httpd.handle_request()
+    httpd.server_close()
+
+    ```
+
+Save this as `receive_authorisation.py`, making sure you add your own values for the client ID, secret, and redirect URI. Then run it with `python3 receive_authorisation.py`, which will start listening for HTTP requests on port 8000 on our local machine. Remember, this is where we told Exist to send the user when we defined our `redirect_uri`. 
+
+Listening for requests means we're ready to go, so hit "Authorise" in the browser. Your browser gets redirected to `http://localhost:8000/?code=[code]`, and our python script receives this request from the browser, grabs that code, and sends it to Exist to exchange for an access token. 
+
+So if all goes well, you'll see "OK!" in the browser, and your tokens in the terminal:
+
+```
+Access token: 8f65bce0f9fdde00b88c7cf25f29b06be43f6ee5
+Refresh token: 8c7cf25f29b06be43f6ee58f65bce0f9fdde00b8
+```
+
+We've done it. We send the user to the authorisation page on Exist, received the request containing the code, and exchanged the code for a token. Now, once our code was running on a publicly accessible server (not `localhost`), we could successfully authenticate any user.
+
+
+### Refreshing a token
 
 
 ## Acquiring attributes
