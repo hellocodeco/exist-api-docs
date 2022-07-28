@@ -58,6 +58,8 @@ That's it! So for the first step, what we need is the ability to create the corr
 
 Let's keep going with our Greatreads example and ask for the `media_write` scope only. Remember that when we created our client app, we set our redirect URI to `http://localhost:8000/`, so we'll need that same value here.
 
+Why did we choose this URL to redirect to? The browser needs to redirect us to a site that we have access to, and `localhost` is shorthand for "this computer I'm on right now". It's most simple to host that site on our own computer temporarily, because we can just run the script in our terminal to do that. (The final part of this URL, `:8000`, means use this specific port number — don't worry too much about that.) 
+
 === "request_authorisation.py"
 
     ```python
@@ -89,7 +91,7 @@ This is the URL we'd give to any user who wanted to connect our Greatreads app t
 
 ![The authorisation page](/img/authorisation.png)
 
-Keep this tab open but don't click "Allow" yet! Exist wants to send a request back to us at `http://localhost:8000/`, and we need to be listening on this port to receive it. That's what we'll write next.
+Keep this tab open but don't click "Allow" yet! Remember that Exist wants to send a request back to us at `http://localhost:8000/`, and we need to be listening on this port to receive it. That's what we'll write next.
 
 === "receive_authorisation.py"
 
@@ -129,7 +131,7 @@ Keep this tab open but don't click "Allow" yet! Exist wants to send a request ba
             })
             # parse the response into json
             data = response.json()
-            print('Access token:', data['access_token'])
+            print('Access token: ', data['access_token'])
             print('Refresh token:', data['refresh_token'])
 
     
@@ -145,26 +147,131 @@ Save this as `receive_authorisation.py`, making sure you add your own values for
 
 Listening for requests means we're ready to go, so hit "Authorise" in the browser. Your browser gets redirected to `http://localhost:8000/?code=[code]`, and our python script receives this request from the browser, grabs that code, and sends it to Exist to exchange for an access token. 
 
-So if all goes well, you'll see "OK!" in the browser, and your tokens in the terminal:
+So if all goes well, you'll see "OK!" in the browser, and your tokens in the terminal (something like this, with different strings):
 
 ```
-Access token: 8f65bce0f9fdde00b88c7cf25f29b06be43f6ee5
+Access token:  8f65bce0f9fdde00b88c7cf25f29b06be43f6ee5
 Refresh token: 8c7cf25f29b06be43f6ee58f65bce0f9fdde00b8
 ```
 
-We've done it. We send the user to the authorisation page on Exist, received the request containing the code, and exchanged the code for a token. Now, once our code was running on a publicly accessible server (not `localhost`), we could successfully authenticate any user.
+We've done it. We sent the user to the authorisation page on Exist, received the request containing the code, and exchanged the code for a token. Now, if we deployed our code to a publicly accessible server (that is, not `localhost`), we could use the same process to successfully authenticate any user, storing their tokens somewhere for use later in our client app.
 
+Although you can't see it in the incomprehensible hash of the token, access tokens are tied to the users they authenticate. So when we send one to Exist, it's able to look up the token and know which user we're acting on behalf of — sending this token is enough, and we don't have to specify anything extra like a username.
+
+
+### Using a token in requests
+
+Now we have an access token, what do we do with it? The token authenticates requests we make, so we need to include it in every request. We do this by adding the `Authorization` header to the request, with a value of `Bearer [token]`. It looks like this:
+
+```python
+import requests
+
+TOKEN = '[your_token]'
+
+requests.get("https://exist.io/api/2/accounts/profile/", 
+    # the relevant addition
+    headers={'Authorization':f'Bearer {TOKEN}'})
+
+```
+
+You'll see this again in all of our code examples past this point.
 
 ### Refreshing a token
+
+OAuth2 tokens can expire, and those issued by Exist expire after a year (we can confirm this by checking the `expires_in` [field](/reference/authentication/oauth2/#refresh-an-access-token)). If we try to make a request with an expired token, we'll get a `HTTP 401` response containing an error message, meaning we're not authenticated properly. What to do then? Well, we could ask the user to authorise our client app all over again, which would allow us to create a new token. *Or*, to save the user being involved, we *could* exchange our refresh token from the previous step for a new access token. Each time we do this, we get a new refresh token too, so we can keep repeating the process every year as required. Tokens don't need to be expired in order to be refreshed, so you can do it early if you need to.
+
+Refreshing a token looks a lot like our `get_token` call from `receive_authorisation.py` above, but instead of sending a code, we send the refresh token:
+
+=== "refresh_token.py"
+
+    ```python
+    import requests
+
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+
+    def get_token(refresh_token):
+        # make our request using our new code, and some other client details
+            response = requests.post('https://exist.io/oauth2/access_token', {
+                'grant_type':'refresh_token',
+                'refresh_token': refresh_token,
+                'client_id': CLIENT_ID,
+                'client_secret': CLIENT_SECRET,
+            })
+            # parse the response into json
+            data = response.json()
+            print("\nNEW TOKENS")
+            print('Access token: ', data['access_token'])
+            print('Refresh token:', data['refresh_token'])
+
+    
+    refresh_token = input("Refresh token: ")
+    get_token(refresh_token)
+    ```
+
+Save this as `refresh_token.py`, add your client ID and secret, and run this with `python3 refresh_token.py`. Enter the access token you received from the previous step, and you should see the same kind of output:
+
+```
+NEW TOKENS
+Access token:  db2641b07f916358a5df6eb50a88ca09da306283
+Refresh token: f58f65bce0f9fdde00b825f29b06be43f6ee8c7c
+```
+
+Now in our client app, we'd store these two new tokens and use the access token to authenticate requests as before, saving the refresh token to use in this process when our access token expires.
+
+Now that we have access tokens with `media_write` scope, we can move on to actually writing data!
 
 
 ## Acquiring attributes
 
-Let's look at the flow of acquiring and using `template` vs `name` a little more, because the rules here are tricky. 
+The first step in being able to write data for an attribute is to acquire it. An attribute can only be owned by one service at any one time, and only the owning service is allowed to write data for it. So if we want to write data for `pages_read`, we'll need to first acquire this attribute by making a POST call to `https://exist.io/api/2/attributes/acquire/`.
 
-As an example, let's imagine we're writing an official integration for a step tracker app we invented, so we'd like to provide `steps` data. If we want to acquire the templated attribute `steps`, for example, we would use the `template` key, because what we want is explicitly the attribute that's an integer quantity of steps walked each day. If the user doesn't have this attribute, Exist will create it for the user and give its ownership to us. But imagine that we had erroneously used the `name` key, for example `"name": "steps"`, and the user had instead already created a manual attribute they've called `steps` which is a percentage type, for some reason. We would expect to start filling it with integer counts for each day, but we can't — it's the wrong type! This endpoint gives us an explicit choice about what we want so we can prevent this.
+=== "acquire_pages_read.py"
 
-On the other hand, let's imagine we're writing a client for updating manual attributes, whatever they are. We know the user has created an attribute called `steps`, and we don't care what it is, because we just want to make a client interface for every manual attribute of any type. In this case, we'd acquire it with `name`, to make explicit that we're okay with non-templated attributes.
+    ```python
+    import requests, json
+
+    TOKEN = '[your_token]'
+
+    def acquire_attribute(token, attribute):
+        # make the json string to send to Exist
+        body = json.dumps([{'template': attribute}])
+
+        # make the POST request, sending the json as the POST body
+        response = requests.post("https://exist.io/api/2/attributes/acquire/", 
+            data=body,
+            headers={'Authorization':f'Bearer {token}',
+                     'Content-type':'application/json'})
+        
+        if response.status_code == 200:
+            # a 200 status code indicates a successful outcome
+            print("Acquired successfully.")
+        else:
+            # print the error if something went wrong
+            data = response.json()
+            print("Error:", data)
+
+    # call the function with the attribute we're after
+    acquire_attribute(TOKEN, "pages_read")
+    ```
+
+For most API endpoints, we'll be sending and receiving JSON. To acquire attributes, we send an array of objects, each one with a key of either `name` or `template` and the value being the attribute name. Here we're only asking for ownership of one attribute, but if we were after multiple, we could acquire them all with a single call to the API, by adding to that array. 
+
+Save this script as `acquire_pages_read.py`, add a valid access token, and run it with `python3 acquire_pages_read.py`. If all goes to plan, you'll see this succinct output:
+
+```
+Acquired successfully.
+```
+
+Remember how we could use either `template` or `name` as the key in our JSON object, and we chose to use `template`? Let's look at the flow of acquiring and when to use one or the other, because the rules here are tricky. 
+
+With our Greatreads example, we'd like to provide `pages_read` data. Exist [has a template](/reference/object_types/#list-of-attribute-templates) for `pages_read`, meaning it understands this attribute is for tracking a quantity of pages read, knows it's an integer type, and can provide more detailed insights about it because of this. It's preferable to use attribute templates when we can because this gives the user the best experience in getting analysis about their data. 
+
+That sounds good, so we want to acquire the templated attribute `pages_read`, meaning we would use the `template` key. In this case, if the user doesn't have this attribute, Exist will create it for the user automatically and give its ownership to us. So convenient! Thank you to whoever created this API 🙏
+
+But imagine that we had erroneously used the `name` key, for example `{"name": "pages_read"}`, and the user had instead already created a manual attribute they've called `pages_read` which is a *percentage* type, for tracking that they finish all their university readings for each day. We would expect to start filling this attribute with integer counts for each day, but we can't — it's the wrong type! We wanted the templated integer type, but we got whatever the user had made — oops. The acquire endpoint gives us an explicit choice about what we want so we can prevent this.
+
+On the other hand, let's imagine we're writing a client for updating manually entered attributes, whatever they are. We know the user has created an attribute called `pages_read`, and we don't care what type it is, because we just want to make a client interface for every manual attribute of any type. In this case, we'd acquire it with `name`, to make explicit that we're okay with non-templated attributes.
 
 ## Creating a new attribute
 
