@@ -306,10 +306,10 @@ These are the allowed types of values an attribute can store. Each attribute has
 
 Value type description         | Value type 
 -------------------------------|-----------
-Integer                        | `0`
-Float                          | `1`
+Integer quantity               | `0`
+Decimal                        | `1`
 String                         | `2`
-Period (minutes as integer)    | `3`
+Duration (minutes as integer)  | `3`
 Time of day (minutes from midnight as integer) | `4`
 Percentage (float, 0.0 to 1.0) | `5`
 Time of day (minutes from midday as integer) | `6`

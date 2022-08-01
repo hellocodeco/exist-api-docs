@@ -32,7 +32,7 @@ Users give client apps access to their accounts by completing the OAuth2 authori
 
 A *scope* represents a certain permission or area of access to data. In the case of Exist, we have *read scopes* and *write scopes* that correspond to the groups attributes live in. For example, if we ask Exist for the `activity_read` scope, we're asking for the ability to read attribute, correlation, average, and insight data related to any attribute the user has in the Activity group. If we asked for the `activity_write` scope, we wouldn't be able to read any of this data, but we could create, own, and write new values for any attribute the user has in Activity.
 
-Scopes are broken down in this way so that clients can ask only for the access they need, and users can be safe in the knowledge that clients aren't reading or writing any other attributes. So a responsible client should ask **only** for the scopes it really needs in order to function correctly. For example, for Greatreads, we'd ask solely for the `media_write` scope so we can acquire and write to the `pages_read` attribute. The list of requested scopes is presented on the authorisation page for the user to agree to, so the user would see these permissions listed:
+Scopes are broken down in this way so that clients can ask only for the access they need, and users can be safe in the knowledge that clients aren't reading or writing any other attributes. **So a responsible client should ask only for the scopes it really needs in order to function correctly.** For example, for Greatreads, we'd ask solely for the `media_write` scope so we can acquire and write to the `pages_read` attribute, and maybe later create our own attributes in the Media group. The list of requested scopes is presented on the authorisation page for the user to agree to, so the user would see these permissions listed:
 
 * Read your profile details (not including email address)
 * Write Media group: Create new attributes and write data to attributes in the group
@@ -238,6 +238,7 @@ The first step in being able to write data for an attribute is to acquire it. An
         body = json.dumps([{'template': attribute}])
 
         # make the POST request, sending the json as the POST body
+        # we need a content-type header so Exist knows it's json
         response = requests.post("https://exist.io/api/2/attributes/acquire/", 
             data=body,
             headers={'Authorization':f'Bearer {token}',
@@ -263,11 +264,15 @@ Save this script as `acquire_pages_read.py`, add a valid access token, and run i
 Acquired successfully.
 ```
 
+This would print an error if we ran it a second time, because we already own the attribute. That's okay, but it's worth remembering that **we don't need to acquire attributes every time we want to write to them, rather, just the first time the user connects our app.** It makes sense to assume they're ours from that point, and then later if we get an error that we're not the owner while trying to write data, we can acquire them again and retry our update.
+
+### Using attribute templates
+
 Remember how we could use either `template` or `name` as the key in our JSON object, and we chose to use `template`? Let's look at the flow of acquiring and when to use one or the other, because the rules here are tricky. 
 
-With our Greatreads example, we'd like to provide `pages_read` data. Exist [has a template](/reference/object_types/#list-of-attribute-templates) for `pages_read`, meaning it understands this attribute is for tracking a quantity of pages read, knows it's an integer type, and can provide more detailed insights about it because of this. It's preferable to use attribute templates when we can because this gives the user the best experience in getting analysis about their data. 
+With our Greatreads example, we'd like to provide `pages_read` data. Exist [has a template](/reference/object_types/#list-of-attribute-templates) for `pages_read`, meaning it understands this attribute is for tracking a quantity of pages read, knows it's an integer type, and can provide more detailed insights about it because of this. It's preferable to use attribute templates when we can because this gives the user the best experience in getting analysis of their data. User attributes can be templated, like "steps", "mood", and so on, or they can be "custom", just like custom tags, where Exist only knows the type of raw data they hold. Users can create custom attributes for tracking manually in the Exist apps, or a client app might create one for a user in order to track something it knows about.
 
-That sounds good, so we want to acquire the templated attribute `pages_read`, meaning we would use the `template` key. In this case, if the user doesn't have this attribute, Exist will create it for the user automatically and give its ownership to us. So convenient! Thank you to whoever created this API 🙏
+Using a template sounds good, so we want to acquire the templated attribute `pages_read`, meaning we would use the `template` key. In this case, if the user doesn't have this attribute, Exist will create it for the user automatically and give its ownership to us. So convenient! Thank you to whoever created this API 🙏
 
 But imagine that we had erroneously used the `name` key, for example `{"name": "pages_read"}`, and the user had instead already created a manual attribute they've called `pages_read` which is a *percentage* type, for tracking that they finish all their university readings for each day. We would expect to start filling this attribute with integer counts for each day, but we can't — it's the wrong type! We wanted the templated integer type, but we got whatever the user had made — oops. The acquire endpoint gives us an explicit choice about what we want so we can prevent this.
 
@@ -275,14 +280,93 @@ On the other hand, let's imagine we're writing a client for updating manually en
 
 ## Creating a new attribute
 
+Okay, so we can acquire attributes that already exist, or that are templated but the user doesn't have yet (because these will be automatically created). But what if we want to invent something totally new that isn't in Exist's list of templates? In this case, we'll need to create a new attribute. We can do this by making a call to the create endpoint and passing it some details about the attribute — things like its label, the type of data it holds, and which group it should belong to.
+
+For Greatreads, let's say we already have a way to track the user's time spent reading via their e-book reader, so we'd like to sync that data to Exist via an attribute called something like "time reading". It should be a "duration" type and belong to the Media group. Because we have a `media_write` scope, we have permission to create new attributes in this group. We don't want it to be manually tracked by the user, because we'll sync this data automatically, so we'll pass `manual` as `false`. 
+
+
+=== "create_attribute.py"
+
+    ```python
+    from enum import IntEnum
+    from pprint import PrettyPrinter
+    import requests, json
+    
+    TOKEN = '[your_token]'
+
+    # our value type constants
+    class ValueType(IntEnum):
+        QUANTITY = 0
+        DECIMAL = 1
+        STRING = 2
+        DURATION = 3
+        TIMEOFDAY = 4
+        PERCENTAGE = 5
+        BOOLEAN = 7
+        SCALE = 8
+
+    def create_attribute(token, label, value_type, group, manual):
+        # make the json string to send to Exist
+        body = json.dumps([
+            {'label': label,
+             'value_type': value_type,
+             'group': group,
+             'manual': manual
+            }])
+
+        # make the POST request, sending the json as the POST body
+        # we need a content-type header so Exist knows it's json
+        response = requests.post("https://exist.io/api/2/attributes/create/", 
+            data=body,
+            headers={'Authorization':f'Bearer {token}',
+                     'Content-type':'application/json'})
+        
+        if response.status_code == 200:
+            # a 200 status code indicates a successful outcome
+            # let's get out the full version of our attribute
+            data = response.json()
+            obj = data['success'][0]
+            print("Created successfully:")
+            # and let's print it (nicely) so we can see its fields
+            pp = PrettyPrinter()
+            pp.pprint(obj)
+        else:
+            # print the error if something went wrong
+            data = response.json()
+            print("Error:", data)
+
+    # call the function with the attribute details we're after
+    create_attribute(TOKEN, "Time reading", ValueType.DURATION, "media", False)
+    ```
+
+
+Save that script as `create_attribute.py`, insert your own token, and run it with `python3 create_attribute.py`. If all went well, you'll see the resulting attribute that was created:
+
+```json
+{'group': 'media',
+ 'label': 'Time reading',
+ 'manual': False,
+ 'name': 'time_reading',
+ 'priority': 9,
+ 'value_type': 3}
+```
+
+The user now has this attribute in Exist, on the web Dashboard and mobile Progress tab! But for now it has no value for any day.
+
+See that the `name` has been created for us as a "slugified" version of the label. The user won't see this name, but it's how we'll refer to the attribute in the API so it's useful that it's memorable.
+
+Again, if we were to run the script a second time, we'd get an error that this attribute already exists. This prevents us from accidentally creating duplicates. And of course, again, **we don't need to create the attribute each time we want to write to it.** We can make a note of the fact that we've already created it for a user and from that point on, assume that it exists until we get an error.
+
+Now that we have the `name` of our attribute, we can write to it.
 
 ## Writing data
+
+
 
 ### Writing totals
 
 ### Reacting to events with the increment endpoint
 
-## Scheduling regular updates
 
 
 [Part three: sharing your integration :material-arrow-right:](/guide/integration/)

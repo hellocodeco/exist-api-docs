@@ -776,28 +776,6 @@ you have a better day when you tag 'walk' more. (24%)
 ```
 
 
-## Scheduling regular updates
-
 At this point, we've covered all of the essentials for reading core data types from Exist using a personal token. I hope you've found it useful!
-
-I wanted to end by talking about the next stage of development, when you have something more complicated than a single Python script and you want to retrieve your data more regularly. (You'll probably use something like `cron` to schedule regular calls to your program, but how you do that is outside the scope of this guide.)
-
-First of all, remember that once you have your token, it doesn't expire, so there's no need to request a new one each time you run your script or make an API call.
-
-Secondly, only use what you need — consider how regularly you need this data, or how up-to-date it needs to be, and don't schedule your script to run any more frequently than this. **Don't make API calls too frequently.**
-
-!!! note
-    Don't run your script more often than you need to.
-
-Most integrations in Exist only update attribute data every hour, and some are less often than that. Manually-entered data can update more frequently depending on how you use Exist, but a good rule of thumb is that, if you need timely data, making a request **once an hour is enough**.
-
-!!! note
-    Once an hour is enough.
-
-Of course, if you don't need it to be up-to-date throughout the day, running your script *once a day* should be enough. 
-
-We've had some folks making automated API calls to retrieve their data on every minute of every hour, and there's just no good reason for that. Please don't do it.
-
-
 
 [Part two: making a write client :material-arrow-right:](/guide/write_client/)
