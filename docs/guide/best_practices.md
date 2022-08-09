@@ -17,7 +17,7 @@ There's no need to acquire an attribute each time you want to write to it. Assum
 
 OAuth2 access tokens expire in a year. Please don't refresh your token each time you make a call, as this is wasteful and unnecessary.
 
-[Read tokens](/reference/authentication/token/) never expire and so don't need to be requested again once you have one.
+Read tokens from our [token-based authentication](/reference/authentication/token/) never expire and so don't need to be requested again once you have one.
 
 
 ## Limit your scopes
@@ -36,8 +36,11 @@ Most official integrations in Exist only update attribute data every hour, and s
 !!! note
     Don't run your script more often than you need to. Once an hour at most is enough for periodic updates.
 
-If you're using the increment endpoints to react to events, then this rule may be broken, as you'll be making a call each time the event triggers it.
 
 Of course, if you don't need data to be up-to-date throughout the day, or you don't have useful data until the end of the day, running your update *once a day* should be enough. 
 
-We've had some folks making automated API calls to retrieve their data on every minute of every hour, and there's just no good reason for that. Please don't do it.
+If you're using the increment endpoints to react to events, then this rule may be broken, as you'll be making a call each time the event triggers it.
+
+If you're sending totals for each day, you should probably sync yesterday's values regularly, as well as the current value for today, to ensure that you have the most up-to-date value for the full 24-hour period.
+
+We've had some folks making automated API calls to update their data on every minute of every hour, and there's just no good reason for that. Please don't do it.

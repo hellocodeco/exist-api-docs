@@ -224,9 +224,9 @@ Now that we have access tokens with `media_write` scope, we can move on to actua
 
 ## Acquiring attributes
 
-The first step in being able to write data for an attribute is to acquire it. An attribute can only be owned by one service at any one time, and only the owning service is allowed to write data for it. So if we want to write data for `pages_read`, we'll need to first acquire this attribute by making a POST call to `https://exist.io/api/2/attributes/acquire/`.
+The first step in being able to write data for an attribute is to acquire it. An attribute can only be owned by one service at any one time, and only the owning service is allowed to write data for it, so if we want to write to it we need to be the owner. To write data for `pages_read`, we'll need to first acquire this attribute by making a POST call to `https://exist.io/api/2/attributes/acquire/`.
 
-=== "acquire_pages_read.py"
+=== "acquire_attribute.py"
 
     ```python
     import requests, json
@@ -256,9 +256,15 @@ The first step in being able to write data for an attribute is to acquire it. An
     acquire_attribute(TOKEN, "pages_read")
     ```
 
-For most API endpoints, we'll be sending and receiving JSON. To acquire attributes, we send an array of objects, each one with a key of either `name` or `template` and the value being the attribute name. Here we're only asking for ownership of one attribute, but if we were after multiple, we could acquire them all with a single call to the API, by adding to that array. 
+For most API endpoints, we'll be sending and receiving JSON. To acquire attributes, we send a JSON body with an array of objects, each one with a key of either `name` or `template` and the value being the attribute name. Like this:
 
-Save this script as `acquire_pages_read.py`, add a valid access token, and run it with `python3 acquire_pages_read.py`. If all goes to plan, you'll see this succinct output:
+```json
+[{"template": "pages_read"}]
+```
+
+Here we're only asking for ownership of one attribute, but if we were after multiple, we could acquire them all with a single call to the API, by adding to that array. 
+
+Save this script as `acquire_attribute.py`, add a valid access token, and run it with `python3 acquire_attribute.py`. If all goes to plan, you'll see this succinct output:
 
 ```
 Acquired successfully.
@@ -272,11 +278,15 @@ Remember how we could use either `template` or `name` as the key in our JSON obj
 
 With our Greatreads example, we'd like to provide `pages_read` data. Exist [has a template](/reference/object_types/#list-of-attribute-templates) for `pages_read`, meaning it understands this attribute is for tracking a quantity of pages read, knows it's an integer type, and can provide more detailed insights about it because of this. It's preferable to use attribute templates when we can because this gives the user the best experience in getting analysis of their data. User attributes can be templated, like "steps", "mood", and so on, or they can be "custom", just like custom tags, where Exist only knows the type of raw data they hold. Users can create custom attributes for tracking manually in the Exist apps, or a client app might create one for a user in order to track something it knows about.
 
-Using a template sounds good, so we want to acquire the templated attribute `pages_read`, meaning we would use the `template` key. In this case, if the user doesn't have this attribute, Exist will create it for the user automatically and give its ownership to us. So convenient! Thank you to whoever created this API 🙏
+Using a template sounds right for us, so we want to acquire the templated attribute `pages_read`, meaning we would use the `template` key. In this case, if the user doesn't have this attribute, Exist will create it for the user automatically and give its ownership to us. So convenient! Thank you to whoever created this API 🙏
 
 But imagine that we had erroneously used the `name` key, for example `{"name": "pages_read"}`, and the user had instead already created a manual attribute they've called `pages_read` which is a *percentage* type, for tracking that they finish all their university readings for each day. We would expect to start filling this attribute with integer counts for each day, but we can't — it's the wrong type! We wanted the templated integer type, but we got whatever the user had made — oops. The acquire endpoint gives us an explicit choice about what we want so we can prevent this.
 
 On the other hand, let's imagine we're writing a client for updating manually entered attributes, whatever they are. We know the user has created an attribute called `pages_read`, and we don't care what type it is, because we just want to make a client interface for every manual attribute of any type. In this case, we'd acquire it with `name`, to make explicit that we're okay with non-templated attributes.
+
+### Releasing attributes
+
+If we don't want to own an attribute any more, we can release it too. This will give up ownership to another service the user has connected that can fill it, or otherwise disable the attribute. The release call looks just like acquiring, except we send our array of JSON objects to `https://exist.io/api/2/attributes/release/`.
 
 ## Creating a new attribute
 
@@ -284,6 +294,7 @@ Okay, so we can acquire attributes that already exist, or that are templated but
 
 For Greatreads, let's say we already have a way to track the user's time spent reading via their e-book reader, so we'd like to sync that data to Exist via an attribute called something like "time reading". It should be a "duration" type and belong to the Media group. Because we have a `media_write` scope, we have permission to create new attributes in this group. We don't want it to be manually tracked by the user, because we'll sync this data automatically, so we'll pass `manual` as `false`. 
 
+For this call, we'll post an array of JSON objects to `https://exist.io/api/2/attributes/create/`.
 
 === "create_attribute.py"
 
@@ -361,12 +372,134 @@ Now that we have the `name` of our attribute, we can write to it.
 
 ## Writing data
 
+Each attribute has one value for each day, where this is a total or final value for the day. The default for writing data is also to send the total, which is easy if we already store or have easy access to that total. But for some apps, that won't make sense, and what they'd rather do is send an incremental update. For example, if you have a smart fridge (why) that fires an event each time you open the door (oh no), it would make sense to send a new `1` value to Exist each time, letting Exist do the hard work of tallying up a total number of times you've been looking for a snack. So Exist provides support for this flow too.
 
+Let's start by looking at sending totals.
 
 ### Writing totals
 
+Let's say our example app, Greatreads, which owns the attribute `pages_read`, has its own internal value of pages read for a user for each day. It doesn't bother trying to keep this value up-to-date in Exist throughout each day, but is happy to call Exist every midnight to sync yesterday's total value.
+
+We won't worry about simulating the local database aspect of Greatreads, and our script will just ask the user for a value and a date and send this to Exist. We'll POST these as an array of JSON objects to `https://exist.io/api/2/attributes/update/`. If we had many attributes, or many dates to update, we could add to our array and send these all at once.
+
+=== "update_attribute.py"
+
+    ```python
+    import requests, json
+
+    TOKEN = '[your_token]'
+
+    def make_update(attribute, date, value):
+        return {'name': attribute, 'date': date, 'value': value}
+
+    def update_attribute(token, updates):
+        # make the json string to send to Exist
+        body = json.dumps(updates)
+
+        # make the POST request, sending the json as the POST body
+        # we need a content-type header so Exist knows it's json
+        response = requests.post("https://exist.io/api/2/attributes/update/", 
+            data=body,
+            headers={'Authorization':f'Bearer {token}',
+                     'Content-type':'application/json'})
+        
+        if response.status_code == 200:
+            # a 200 status code indicates a successful outcome
+            print("Updated successfully.")
+        else:
+            # print the error if something went wrong
+            data = response.json()
+            print("Error:", data)
+
+    # when we run this script, execution will start here
+    print("UPDATE PAGES READ")
+    # ask for our inputs. date can stay as a string
+    date = input("Date (yyyy-mm-dd format): ")
+    # but we turn our returned value into an integer type
+    value = int(input("Value (integer): "))
+
+    # make an update object to send
+    update = make_update("pages_read", date, value)
+
+    # call the function with the array of updates we've made
+    update_attribute(TOKEN, [update])
+    ```
+
+Save this as `update_attribute.py`, add your access token, and run it with `python3 update_attribute.py`. We can now enter a date and a value:
+
+```
+UPDATE PAGES READ
+Date (yyyy-mm-dd format): 2022-08-09
+Value (integer): 26
+Updated successfully.
+```
+
+And we should see this reflected on the Exist web dashboard and in the app immediately. We could run this again and enter another date and value, or even the same date and a new value, and this would be updated in Exist. Because we own `pages_read`, we're responsible for setting its daily values. These won't change unless we change them, or until the user selects a different service to provide `pages_read` data for their account.
+
 ### Reacting to events with the increment endpoint
 
+Let's say that Greatreads has been acquired by the maker of Spark e-readers, and the new parent company has announced a partnership with Hello Code, the hard-working and attractive makers of Exist, to provide more personal analytics data in real-time for owners of the premium Spark Mirage. Word has come down from management that we'll have to refactor our Greatreads client for Exist to send an update for `pages_read` each time the user turns the page.
 
+Fortunately, this is easy. Instead of sending a total for `pages_read` to the `attributes/update/` endpoint, we can send a `1` to `attributes/increment/` endpoint, and call this whenever the page turn event is triggered. We don't even have to include the date if we're doing this in real-time, because the default date is always today.
+
+=== "increment_attribute.py"
+
+    ```python
+    import requests, json
+
+    TOKEN = '[your_token]'
+
+    def make_update(attribute, value):
+        # this value is now the amount to increment by
+        return {'name': attribute, 'value': value}
+
+    def increment_attribute(token, updates):
+        # make the json string to send to Exist
+        body = json.dumps(updates)
+
+        # make the POST request, sending the json as the POST body
+        # we need a content-type header so Exist knows it's json
+        response = requests.post("https://exist.io/api/2/attributes/increment/", 
+            data=body,
+            headers={'Authorization':f'Bearer {token}',
+                     'Content-type':'application/json'})
+        
+        if response.status_code == 200:
+            # a 200 status code indicates a successful outcome
+            data = response.json()
+            # get the current value from our success object
+            current = data['success'][0]['current']
+            print(f"Updated successfully. New value is {current}.")
+        else:
+            # print the error if something went wrong
+            data = response.json()
+            print("Error:", data)
+
+    # when we run this script, execution will start here
+    print("INCREMENT PAGES READ")
+    
+    # make an update object to send
+    update = make_update("pages_read", 1)
+
+    # call the function with the array of updates we've made
+    increment_attribute(TOKEN, [update])
+    ```
+
+Save this as `increment_attribute.py`, add your access token, and run it with `python3 increment_attribute.py`. Now each time we run it, we can see the total for today incrementing:
+
+```
+$ python3 increment_attributes.py
+INCREMENT PAGES READ
+Updated successfully. New value is 27.
+$ python3 increment_attributes.py
+INCREMENT PAGES READ
+Updated successfully. New value is 28.
+```
+
+So now we're able to react to events by sending the value of the change only, for example one page, rather than calculating the total. Management will be happy. The increment doesn't have to be `1`, and can be used with decimals and duration types too.
+
+This call is still bound by rate-limiting rules, though, so if we're reading pages too fast we should be mindful of running into a `HTTP 429` error response, and our increment calls will fail until the limit resets.
+
+And now that we've covered authenticating users, creating and acquiring attributes, and finally ways to write data, we've concluded our study of creating a write client for Exist! I hope you've found it a useful way to understand the process.
 
 [Part three: sharing your integration :material-arrow-right:](/guide/integration/)
