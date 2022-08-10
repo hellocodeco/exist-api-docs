@@ -500,6 +500,6 @@ So now we're able to react to events by sending the value of the change only, fo
 
 This call is still bound by rate-limiting rules, though, so if we're reading pages too fast we should be mindful of running into a `HTTP 429` error response, and our increment calls will fail until the limit resets.
 
-And now that we've covered authenticating users, creating and acquiring attributes, and finally ways to write data, we've concluded our study of creating a write client for Exist! I hope you've found it a useful way to understand the process.
+And now that we've covered authenticating users, creating and acquiring attributes, and finally ways to write data, we've concluded our study of creating a write client for Exist! I hope you've found it a useful way to understand the process, because it took me a really long time to write.
 
 [Part three: sharing your integration :material-arrow-right:](/guide/integration/)

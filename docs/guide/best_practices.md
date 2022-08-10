@@ -6,28 +6,37 @@ TL;DR:
 
 1. Don't acquire attributes every time you write
 2. Don't refresh tokens every time you write
-3. Don't write more often than necessary
-4. Limit your scopes to only what you need
+3. Limit your scopes to only what you need
+4. Batch your writes into fewer calls where possible
+5. Don't write more often than necessary
 
-##  Acquiring attributes
 
-There's no need to acquire an attribute each time you want to write to it. Assume that you already own the attribute and only reactively acquire it again if you get an error that you don't.
+##  Acquire attributes once
 
-## Refreshing tokens
+Don't forget that you cannot write to an attribute unless you own it, so you must first call to [acquire it](/reference/attribute_ownership/).
 
-OAuth2 access tokens expire in a year. Please don't refresh your token each time you make a call, as this is wasteful and unnecessary.
+*However*, there's no need to acquire an attribute each time you want to write to it. Perform attribute creation and acquisition once when the user first connects your app, and thereafter assume that you already own the attribute. Only reactively acquire it again if you get an error that you don't.
+
+## Refresh tokens when they expire
+
+[OAuth2 access tokens](/reference/authentication/oauth2/) expire in a year. Please don't refresh your token each time you make a call, as this is wasteful and unnecessary.
 
 Read tokens from our [token-based authentication](/reference/authentication/token/) never expire and so don't need to be requested again once you have one.
 
 
 ## Limit your scopes
 
-Scopes are fine-grained to read- and write-access per group so that clients can ask for only what they need, and users can give out the minimum access to their data that's necessary. Please ask for the minimum scopes you require in order for your client to function.
+[Scopes](/reference/authentication/oauth2/#scopes) are fine-grained to read- and write-access per group so that clients can ask for only what they need, and users can give out the minimum access to their data that's necessary. Please ask for the minimum scopes you require in order for your client to function.
+
+
+## Batch your writes together
+
+The [acquire, create, update, and increment write endpoints](/reference/writing_data/) all accept arrays of objects, meaning that you can avoid making multiple calls to Exist by combining multiple updates into one call. For example, if you're updating 3 days' worth of data for one attribute for a user, this can be one call to `attributes/update/` containing three updates with different dates. Likewise, you can also combine updates across different attributes as long as they're all for the same user. This is usually much faster than multiple calls and avoids hitting rate limits.
 
 
 ## Scheduling regular updates
 
-You'll probably use something like `cron` to schedule regular calls to your program, but how you do that is outside the scope of this guide.
+You'll probably use something like `cron` to schedule regular calls to sync data to Exist, but how you do that is outside the scope of this guide.
 
 Use only what you need — consider how regularly you need this data, or how up-to-date it needs to be, and don't schedule your update to run any more frequently than this. **Don't make API calls too frequently.** We don't have unlimited server capacity.
 
