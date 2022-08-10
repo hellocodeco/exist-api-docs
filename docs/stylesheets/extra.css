@@ -44,3 +44,11 @@
     height: 2rem;
     
 }
+
+.md-clipboard:not(.focus-visible){
+    color: rgba(255,255,255,0.4);
+}
+
+.md-clipboard:is(:focus, :hover) {
+     color: var(--md-accent-fg-color);
+}

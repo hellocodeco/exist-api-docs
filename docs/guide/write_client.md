@@ -22,7 +22,7 @@ The client ID and secret are important values that we'll be using in our code. Y
 
 ![The developer token](/img/token.png)
 
-A user access token is a way of authenticating ourselves to Exist on behalf of a particular user. In this case, Exist has created us a personal user token to get started with, with permissions to read and write all attributes, so that we don't need to go through the OAuth2 authorisation flow before getting our own data. Let's not worry about this for now, because we'd like to learn about the full flow, so instead of skipping it we'll jump into it.
+A user access token is a way of authenticating ourselves to Exist on behalf of a particular user. In this case, Exist has created us a personal user token to get started with, with permissions to read and write all attributes, so that we don't need to go through the OAuth2 authorisation flow before getting our own data. Let's not worry about this, because we want to go ahead and learn the full OAuth2 flow.
 
 ## Authenticating a user with OAuth2
 
@@ -39,7 +39,7 @@ Scopes are broken down in this way so that clients can ask only for the access t
 
 All clients can see a user's profile details without asking for this scope specifically, so that they can address the user and present user data in the correct units and so on. So these are the two permissions the user agrees to.
 
-You can find a full list of scopes [in the OAuth2 reference](/references/authentication/oauth2/#scopes).
+You can find a full list of scopes [in the OAuth2 reference](/reference/authentication/oauth2/#scopes).
 
 ### The authorisation flow
 
@@ -67,11 +67,12 @@ Why did we choose this URL to redirect to? The browser needs to redirect us to a
 
     CLIENT_ID = "[your_id]"
     URL = 'https://exist.io/oauth2/authorize'
+    REDIRECT_URI = 'http://localhost:8000/'
 
     # the parameters we'll be sending
     params = {'client_id': CLIENT_ID, 
               'response_type':'code', 
-              'redirect_uri':'http://localhost:8000/',
+              'redirect_uri':REDIRECT_URI,
               'scope':'media_write',
              }
     
@@ -102,7 +103,7 @@ Keep this tab open but don't click "Allow" yet! Remember that Exist wants to sen
 
     CLIENT_ID = ''
     CLIENT_SECRET = ''
-    REDIRECT_URI = ''
+    REDIRECT_URI = 'http://localhost:8000/'
 
     # create a class to handle our http request
     class Handler(BaseHTTPRequestHandler):
@@ -143,7 +144,7 @@ Keep this tab open but don't click "Allow" yet! Remember that Exist wants to sen
 
     ```
 
-Save this as `receive_authorisation.py`, making sure you add your own values for the client ID, secret, and redirect URI. Then run it with `python3 receive_authorisation.py`, which will start listening for HTTP requests on port 8000 on our local machine. Remember, this is where we told Exist to send the user when we defined our `redirect_uri`. 
+Save this as `receive_authorisation.py`, making sure you add your own values for the client ID and secret. Then run it with `python3 receive_authorisation.py`, which will start listening for HTTP requests on port 8000 on our local machine. Remember, this is where we told Exist to send the user when we defined our `redirect_uri`. 
 
 Listening for requests means we're ready to go, so hit "Authorise" in the browser. Your browser gets redirected to `http://localhost:8000/?code=[code]`, and our python script receives this request from the browser, grabs that code, and sends it to Exist to exchange for an access token. 
 
@@ -154,7 +155,7 @@ Access token:  8f65bce0f9fdde00b88c7cf25f29b06be43f6ee5
 Refresh token: 8c7cf25f29b06be43f6ee58f65bce0f9fdde00b8
 ```
 
-We've done it. We sent the user to the authorisation page on Exist, received the request containing the code, and exchanged the code for a token. Now, if we deployed our code to a publicly accessible server (that is, not `localhost`), we could use the same process to successfully authenticate any user, storing their tokens somewhere for use later in our client app.
+We've done it. We sent the user to the authorisation page on Exist, received the request containing the code, and exchanged the code for a token. Now, if we deployed our program to a publicly accessible server (that is, not `localhost`), we could use the same process to successfully authenticate any user, storing their tokens somewhere for use later in our client app.
 
 Although you can't see it in the incomprehensible hash of the token, access tokens are tied to the users they authenticate. So when we send one to Exist, it's able to look up the token and know which user we're acting on behalf of — sending this token is enough, and we don't have to specify anything extra like a username.
 
@@ -191,25 +192,25 @@ Refreshing a token looks a lot like our `get_token` call from `receive_authorisa
     CLIENT_SECRET = ''
 
     def get_token(refresh_token):
-        # make our request using our new code, and some other client details
-            response = requests.post('https://exist.io/oauth2/access_token', {
-                'grant_type':'refresh_token',
-                'refresh_token': refresh_token,
-                'client_id': CLIENT_ID,
-                'client_secret': CLIENT_SECRET,
-            })
-            # parse the response into json
-            data = response.json()
-            print("\nNEW TOKENS")
-            print('Access token: ', data['access_token'])
-            print('Refresh token:', data['refresh_token'])
+        # make our request using a different grant type and our refresh token
+        response = requests.post('https://exist.io/oauth2/access_token', {
+            'grant_type':'refresh_token',
+            'refresh_token': refresh_token,
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET,
+        })
+        # parse the response into json
+        data = response.json()
+        print("\nNEW TOKENS")
+        print('Access token: ', data['access_token'])
+        print('Refresh token:', data['refresh_token'])
 
     
     refresh_token = input("Refresh token: ")
     get_token(refresh_token)
     ```
 
-Save this as `refresh_token.py`, add your client ID and secret, and run this with `python3 refresh_token.py`. Enter the access token you received from the previous step, and you should see the same kind of output:
+Save this as `refresh_token.py`, add your client ID and secret, and run this with `python3 refresh_token.py`. Enter the refresh token you received from the previous step, and you should see the same kind of output:
 
 ```
 NEW TOKENS
@@ -224,7 +225,7 @@ Now that we have access tokens with `media_write` scope, we can move on to actua
 
 ## Acquiring attributes
 
-The first step in being able to write data for an attribute is to acquire it. An attribute can only be owned by one service at any one time, and only the owning service is allowed to write data for it, so if we want to write to it we need to be the owner. To write data for `pages_read`, we'll need to first acquire this attribute by making a POST call to `https://exist.io/api/2/attributes/acquire/`.
+The first step in being able to write data for an attribute is to acquire it. **An attribute can only be owned by one service at any one time, and only the owning service is allowed to write data for it,** so if we want to write to it we need to be the owner. To write data for `pages_read`, we'll need to first acquire this attribute by making a POST call to `https://exist.io/api/2/attributes/acquire/`.
 
 === "acquire_attribute.py"
 
@@ -290,7 +291,7 @@ If we don't want to own an attribute any more, we can release it too. This will 
 
 ## Creating a new attribute
 
-Okay, so we can acquire attributes that already exist, or that are templated but the user doesn't have yet (because these will be automatically created). But what if we want to invent something totally new that isn't in Exist's list of templates? In this case, we'll need to create a new attribute. We can do this by making a call to the create endpoint and passing it some details about the attribute — things like its label, the type of data it holds, and which group it should belong to.
+Okay, so we can acquire attributes that already exist, or that are templated but the user doesn't have yet (because these will be automatically created). But what if we want to invent something totally new that isn't in Exist's list of templates? In this case, we'll need to create a new attribute. We can do this by making a call to the `create` endpoint and passing it some details about the attribute — things like its label, the type of data it holds, and which group it should belong to.
 
 For Greatreads, let's say we already have a way to track the user's time spent reading via their e-book reader, so we'd like to sync that data to Exist via an attribute called something like "time reading". It should be a "duration" type and belong to the Media group. Because we have a `media_write` scope, we have permission to create new attributes in this group. We don't want it to be manually tracked by the user, because we'll sync this data automatically, so we'll pass `manual` as `false`. 
 
@@ -305,7 +306,7 @@ For this call, we'll post an array of JSON objects to `https://exist.io/api/2/at
     
     TOKEN = '[your_token]'
 
-    # our value type constants
+    # let's make some constants to represent Exist's value types
     class ValueType(IntEnum):
         QUANTITY = 0
         DECIMAL = 1
@@ -392,7 +393,7 @@ We won't worry about simulating the local database aspect of Greatreads, and our
     def make_update(attribute, date, value):
         return {'name': attribute, 'date': date, 'value': value}
 
-    def update_attribute(token, updates):
+    def update_attributes(token, updates):
         # make the json string to send to Exist
         body = json.dumps(updates)
 
@@ -422,7 +423,7 @@ We won't worry about simulating the local database aspect of Greatreads, and our
     update = make_update("pages_read", date, value)
 
     # call the function with the array of updates we've made
-    update_attribute(TOKEN, [update])
+    update_attributes(TOKEN, [update])
     ```
 
 Save this as `update_attribute.py`, add your access token, and run it with `python3 update_attribute.py`. We can now enter a date and a value:
@@ -453,7 +454,7 @@ Fortunately, this is easy. Instead of sending a total for `pages_read` to the `a
         # this value is now the amount to increment by
         return {'name': attribute, 'value': value}
 
-    def increment_attribute(token, updates):
+    def increment_attributes(token, updates):
         # make the json string to send to Exist
         body = json.dumps(updates)
 
@@ -482,7 +483,7 @@ Fortunately, this is easy. Instead of sending a total for `pages_read` to the `a
     update = make_update("pages_read", 1)
 
     # call the function with the array of updates we've made
-    increment_attribute(TOKEN, [update])
+    increment_attributes(TOKEN, [update])
     ```
 
 Save this as `increment_attribute.py`, add your access token, and run it with `python3 increment_attribute.py`. Now each time we run it, we can see the total for today incrementing:

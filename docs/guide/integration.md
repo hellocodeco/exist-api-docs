@@ -10,7 +10,7 @@ Unfortunately we do not have the resources to receive and maintain your code, pr
 
 ### Hosting it yourself
 
-The smoothest experience for your users is not coincidentally the most effort for you — hosting a web app on your own servers. This allows users to easily connect your app by visiting its URL, authorising it with Exist, and being redirected back to your site to complete the process. Your server-side setup also manages regular syncing to Exist without requiring any further work from the user. Of course, this setup requires that you manage your own infrastructure and provide an ongoing service to users, who will expect everything to keep working and come to you for support if things go wrong.
+The smoothest experience for your users is not-coincidentally the most effort for you — hosting a web app on your own servers. This allows users to easily connect your app by visiting its URL, authorising it with Exist, and being redirected back to your site to complete the process. Your server-side setup also manages regular syncing to Exist without requiring any further work from the user. Of course, this setup requires that you manage your own infrastructure and provide an ongoing service to users, who will expect everything to keep working and come to you for support if things go wrong.
 
 ### Providing a client-side app
 
@@ -24,4 +24,4 @@ The lowest-effort option is to simply write some scripts in the language of your
 
 ## Tell us about it
 
-We love to hear about what you're building with Exist, and our developer forum is the best way to show what you've built to other Exist users too. So please [share your work in our forum](https://developer.exist.io)!
+We love to hear about what you're building with Exist, and our developer forum is the best way to show what you've built to other Exist users too. So please [share your work in our forum](https://forum.exist.io/c/developers/6)!
