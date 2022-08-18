@@ -69,7 +69,7 @@ Returns a JSON object containing a paged array:
       "html": "<div class=\"secondary\">Last night&#x27;s sleep was surprisingly long.</div>\r\n<div class=\"num-label\">Monday is usually your shortest sleep of the week.</div>",
       "text": "Last night's sleep was surprisingly long.\r\nMonday is usually your shortest sleep of the week."
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```

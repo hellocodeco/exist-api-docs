@@ -72,7 +72,7 @@ Returns a JSON object containing an array of correlation results:
       "occurrence": null,
       "rating": null
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```

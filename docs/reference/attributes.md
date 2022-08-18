@@ -72,7 +72,7 @@ A paged list of attribute template objects.
       "value_type": 3,
       "value_type_description": "Period (min)"
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```
@@ -160,7 +160,7 @@ A paged list of attribute objects belonging to this user. `available_services` s
         }
       ]
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```
@@ -238,7 +238,7 @@ Note the inclusion of the `values` array, which contains date/value pairs.
         }
       ]
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```
@@ -305,7 +305,7 @@ Name  | Description
       "date": "2022-05-09",
       "value": 5141
     },
-    # ...snip!...
+    // ...snip!...
   ]
 }
 ```
