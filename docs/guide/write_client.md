@@ -271,7 +271,7 @@ Save this script as `acquire_attribute.py`, add a valid access token, and run it
 Acquired successfully.
 ```
 
-This would print an error if we ran it a second time, because we already own the attribute. That's okay, but it's worth remembering that **we don't need to acquire attributes every time we want to write to them, rather, just the first time the user connects our app.** It makes sense to assume they're ours from that point, and then later if we get an error that we're not the owner while trying to write data, we can acquire them again and retry our update.
+We could run this again and get the same result, which is handy if we're not sure if we own it, but it's worth remembering that **we don't need to acquire attributes every time we want to write to them, rather, just the first time the user connects our app.** It makes sense to assume they're ours from that point, and then later if we get an error that we're not the owner while trying to write data, we can acquire them again and retry our update.
 
 ### Using attribute templates
 

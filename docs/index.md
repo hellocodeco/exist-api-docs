@@ -14,3 +14,4 @@ From here you can:
 - [View the API reference](/reference/important_values/)
 
 
+You can also still access the docs for [the deprecated v1 API](/deprecated/v1/).

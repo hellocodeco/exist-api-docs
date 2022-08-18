@@ -2,7 +2,7 @@
 title: Changelog
 ---
 
-
+* **2022-08-18:** API 2 is now generally available, API 1 is deprecated
 * **2017-09-27:** Custom tags now available from the API
 * **2015-12-01:** OAuth2 clients are available for all users
 * **2015-10-05:** Removed separate value fields in insights, added rendered text field
