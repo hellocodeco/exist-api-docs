@@ -1,4 +1,8 @@
 
+## URLs and endpoints
+
+The new API lives at `https://exist.io/api/2/` — note the 2 in the URL. URLs for resources have also changed, and providing the username or `$self` in the URL is now unnecessary. Most API endpoints that return lists now return paged responses.
+
 ## Scopes
 
 API v2 has new [fine-grained scopes](/reference/authentication/oauth2/#scopes) for reading and writing individual groups. The `read`, `write`, and `append` scopes are not valid for any v2 endpoints, and existing access tokens with only these scopes will not be able to read or write data using the v2 endpoints. Users must reauthorise your app through the OAuth2 flow in order to generate a token with the correct scopes.
