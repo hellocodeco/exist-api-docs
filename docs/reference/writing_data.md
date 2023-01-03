@@ -48,7 +48,7 @@ Check value types for each attribute in [list of supported attributes](/referenc
 
     attributes = [{"name":"mood", "date":"2022-05-20", "value":7}, {"name":"mood_note", "date":"2022-05-20", "value":"Great day playing with the Exist API"}]
 
-    response = requests.post(url, headers={'Authorization':'Bearer [token]'},
+    response = requests.post(url, headers={'Content-Type':'application/json', 'Authorization':'Bearer [token]'},
         data=json.dumps(attributes))
     ```
 
@@ -118,7 +118,7 @@ Check value types for each attribute in [list of supported attributes](/referenc
 
     attributes = [{"name":"steps", "date":"2022-05-20", "value":700}, {"name":"steps_active_min", "value":5}]
 
-    response = requests.post(url, headers={'Authorization':'Bearer [token]'},
+    response = requests.post(url, headers={'Content-Type':'application/json', 'Authorization':'Bearer [token]'},
         data=json.dumps(attributes))
     ```
 
