@@ -9,7 +9,7 @@ To be able to read our own personal data from Exist, we need to authenticate our
 
 Let's make a request to the simple token endpoint, using the `requests` library, exchanging our username and password for a token we can use to authenticate ourselves with the API. 
 
-The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` and `password` and returns a JSON object containing a `token` field. Note that this is still at `/api/1/` although everything else we'll do will be using the new endpoints at `/api/2/`.
+The endpoint at `https://exist.io/api/2/auth/simple-token/` takes a `username` and `password` and returns a JSON object containing a `token` field.
 
 === "get_token.py"
 
@@ -20,7 +20,7 @@ The endpoint at `https://exist.io/api/1/auth/simple-token/` takes a `username` a
     username = input("Username: ")
     password = getpass("Password: ")
 
-    url = 'https://exist.io/api/1/auth/simple-token/'
+    url = 'https://exist.io/api/2/auth/simple-token/'
 
     response = requests.post(url, data={'username':username, 'password':password})
     
