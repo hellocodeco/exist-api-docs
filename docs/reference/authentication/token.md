@@ -17,13 +17,13 @@ Exchange your user credentials for a token. This token will not change or expire
 
 #### Request
 
-`POST /api/1/auth/simple-token/`
+`POST /api/2/auth/simple-token/`
 
 === "Shell"
 
     ```shell
 
-    curl -X POST "https://exist.io/api/1/auth/simple-token/" -d "username=bobby_tables" -d "password=existrulz123"
+    curl -X POST "https://exist.io/api/2/auth/simple-token/" -d "username=bobby_tables" -d "password=existrulz123"
     ```
 
 === "Python"
@@ -31,7 +31,7 @@ Exchange your user credentials for a token. This token will not change or expire
     ```python
     import requests
 
-    requests.post('https://exist.io/api/1/auth/simple-token/',
+    requests.post('https://exist.io/api/2/auth/simple-token/',
         {'username':'bobby_tables','password':'existrulz123'})
     ```
 
