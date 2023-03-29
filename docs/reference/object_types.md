@@ -304,6 +304,8 @@ Name                | Group        | Value type description         | Value type
 
 These are the allowed types of values an attribute can store. Each attribute has a single, fixed value type.
 
+Note: value type `6` (minutes from midday) is reserved for attribute templates. New attributes cannot be created via the API with this value type.
+
 Value type description         | Value type 
 -------------------------------|-----------
 Integer quantity               | `0`
