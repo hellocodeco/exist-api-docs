@@ -236,7 +236,7 @@ The first step in being able to write data for an attribute is to acquire it. **
 
     def acquire_attribute(token, attribute):
         # make the json string to send to Exist
-        body = json.dumps([{'template': attribute}])
+        body = json.dumps([{'template': attribute, 'manual': False}])
 
         # make the POST request, sending the json as the POST body
         # we need a content-type header so Exist knows it's json
@@ -260,10 +260,10 @@ The first step in being able to write data for an attribute is to acquire it. **
 For most API endpoints, we'll be sending and receiving JSON. To acquire attributes, we send a JSON body with an array of objects, each one with a key of either `name` or `template` and the value being the attribute name. Like this:
 
 ```json
-[{"template": "pages_read"}]
+[{"template": "pages_read", "manual": false}]
 ```
 
-Here we're only asking for ownership of one attribute, but if we were after multiple, we could acquire them all with a single call to the API, by adding to that array. 
+Here we're only asking for ownership of one attribute, but if we were after multiple, we could acquire them all with a single call to the API, by adding to that array. We're sending the `manual` flag too, to make sure that when we acquire the attribute, it is not shown for manual entry in the Exist clients. We don't want users to overwrite the data we're providing by entering it manually.
 
 Save this script as `acquire_attribute.py`, add a valid access token, and run it with `python3 acquire_attribute.py`. If all goes to plan, you'll see this succinct output:
 

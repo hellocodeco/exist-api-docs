@@ -129,6 +129,88 @@ Returns `200 OK` if all attributes were processed successfully, or `202 Accepted
 
 ## List owned attributes
 
-To list all the attributes your client currently owns, see ["Attributes" under Reading data](/reference/attributes/#get-a-users-attributes) and note the `owned` flag.
+Retrieve a list of the user's attributes, without any values. Results are limited to what your service already owns.
+
+### Request
+
+`GET /api/2/attributes/owned/`
+
+=== "Shell"
+
+    ```shell
+    curl "https://exist.io/api/2/attributes/owned/" -H "Authorization: Bearer [token]"
+    ```
+
+=== "Python"
+    ```python
+    import requests
+
+    requests.get("https://exist.io/api/2/attributes/owned/",
+                 headers = {'Authorization': 'Bearer [token]'})
+    ```
+
+
+### Parameters
+
+All parameters are optional.
+
+| Parameter | Description |
+|-----------|-------------|
+| `page` | Page index. Optional, default is 1. |
+| `limit` | Integer defining how many results to a page |
+| `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
+| `attributes` | Comma-separated list of attributes to filter by |
+| `exclude_custom` | Boolean flag, set to `true` to only show templated attributes |
+| `manual` | Boolean flag, set to `true` to only show manual attributes or `false` to exclude |
+| `include_inactive` | Boolean flag, set to `true` to include attributes with `active = False`, usually hidden |
+| `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` >= 10 |
+
+### Response
+
+A paged list of attribute objects belonging to this user. `available_services` shows the services a user has connected which have indicated they can provide data for this attribute.
+
+```json
+{
+  "count": 34,
+  "next": "https://exist.io/api/2/attributes/owned/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "template": "steps",
+      "name": "steps",
+      "label": "Steps",
+      "group": {
+        "name": "activity",
+        "label": "Activity",
+        "priority": 1
+      },
+      "service": {
+        "name": "test500",
+        "label": "My Test Client"
+      },
+      "active": true,
+      "priority": 1,
+      "manual": false,
+      "value_type": 0,
+      "value_type_description": "Integer",
+      "available_services": [
+        {
+          "name": "test500",
+          "label": "My Test Client"
+        },
+        {
+          "name": "oura",
+          "label": "Oura"
+        },
+        {
+          "name": "withings",
+          "label": "Withings"
+        }
+      ]
+    },
+    // ...snip!...
+  ]
+}
+```
 
 

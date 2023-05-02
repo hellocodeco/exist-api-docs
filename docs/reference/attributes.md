@@ -112,7 +112,7 @@ All parameters are optional.
 | `groups`  | Comma-separated list of groups to filter by, e.g. `activity,workouts`|
 | `attributes` | Comma-separated list of attributes to filter by |
 | `exclude_custom` | Boolean flag, set to `true` to only show templated attributes |
-| `manual` | Boolean flag, set to `true` to only show manual attributes |
+| `manual` | Boolean flag, set to `true` to only show manual attributes or `false` to exclude |
 | `include_inactive` | Boolean flag, set to `true` to include attributes with `active = False`, usually hidden |
 | `include_low_priority` | Boolean flag, set to `true` to include attributes with a `priority` >= 10 |
 | `owned` | Boolean flag, set to `true` to omit attributes not owned by this client |
