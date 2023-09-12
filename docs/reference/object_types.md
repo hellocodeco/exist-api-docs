@@ -262,6 +262,9 @@ Name                | Group        | Value type description         | Value type
 `stress_level`      | Mood         | Integer scale (between 1 and 9)    | `8`
 `sleep`             | Sleep        | Period (minutes as integer)    | `3`
 `time_in_bed`       | Sleep        | Period (minutes as integer)    | `3`
+`sleep_light`       | Sleep        | Period (minutes as integer)    | `3`
+`sleep_deep`        | Sleep        | Period (minutes as integer)    | `3`
+`sleep_rem`         | Sleep        | Period (minutes as integer)    | `3`
 `sleep_start`       | Sleep        | Time of day (minutes from midday as integer)   | `6`
 `sleep_end`         | Sleep        | Time of day (minutes from midnight as integer) | `4`
 `sleep_awakenings`  | Sleep        | Integer                        | `0`
