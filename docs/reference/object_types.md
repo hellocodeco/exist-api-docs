@@ -275,6 +275,7 @@ Name                | Group        | Value type description         | Value type
 `lean_mass` | Health | Float (kg) | `1`
 `heartrate`         | Health       | Integer                        | `0`
 `heartrate_max` | Health | Integer | `0`
+`heartrate_variability` | Health | Integer | `0`
 `heartrate_resting` | Health | Integer | `0`
 `meditation_min`    | Health       | Period (minutes as integer)    | `3`
 `menstrual_flow` | Health | Integer (`0`=none, `1`=spotting, `2`=light, `3`=medium, `4`=heavy) | `0`
