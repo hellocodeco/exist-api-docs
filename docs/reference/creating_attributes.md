@@ -58,6 +58,8 @@ Name      | Description
 
 Returns a JSON object with `success` and `failed` fields containing your requested attributes. Returns `200 OK` if all attributes were successful or `202 Created` if some failed. Each object in the `failed` array will contain an `error` description and `error_code` string.
 
+Note that the `name` field is not guaranteed to match the `label` and will only be known in advance if the attribute is created from a template. To be sure of the `name` of your created attribute, read it from the response.
+
 ```json
 { "success": [
     { "template":"facebook_reactions",

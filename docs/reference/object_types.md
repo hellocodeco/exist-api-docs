@@ -36,6 +36,8 @@ string types but are usually quantifiable, i.e. integers or floats. The `value_t
 An attribute has many values, one for each day that it has been tracked. If requested, the `values` property will
 contain an array of `date`/`value` pairs.
 
+An attribute has a user-facing `label`, which may be any string and include emoji, and a `name`, which is a simple ASCII identifier that you'll use when referring to the attribute for things like updates. These are not guaranteed to be the same.
+
 If there is no data for a particular date, this will be reflected with a null value — you should expect to
 receive a list of results containing every single day, rather than days without data being omitted.
 
@@ -48,7 +50,7 @@ Groups are currently fairly broad and may change as we add more supported attrib
 
 `manual` attributes are those which are not automatically filled with data from a supported integration, but instead have manual entry UI provided within our official clients. If you're creating a client that will provide data for attributes, you want `manual` to be `false`.
 
-See also [list of attribute templates](#list-of-attribute-templates) and [attribute value types](#attribute-value-types).
+Attributes can be "templated", meaning they take their name and other values from an attribute template we provide. In this case, the attribute's name will be known, as it matches the template. See also [list of attribute templates](#list-of-attribute-templates) and [attribute value types](#attribute-value-types).
 
 ```json
 {
@@ -211,7 +213,7 @@ We use **client** to refer an application with OAuth2 client credentials. A clie
 
 ## List of attribute templates
 
-All the "official" attributes we currently support. Templated attributes are treated differently because we "understand" them — they receive their own insights, individual wording for correlations, and so on. You should prefer them over custom attributes where possible. 
+All the "official" attributes we currently support. Templated attributes are treated differently because we "understand" them — they receive their own insights, individual wording for correlations, and so on. You should prefer them over custom attributes where possible. Attributes that are "templated" take their name and value type from the template.
 
 The group an attribute belongs to may change in future, but attribute names should be considered stable.
 
