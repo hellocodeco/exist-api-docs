@@ -1,16 +1,39 @@
 :root {
-    --md-primary-fg-color:#333a45;
-    --md-typeset-a-color: #00a3c6;
+    --md-primary-fg-color:#eae4e1;
+    --md-typeset-a-color: #000;
+    --md-typeset-color: #333;
     --md-accent-fg-color: #00b7e0;
-    
 
 }
+
+.md-header--shadow {
+    box-shadow: none;
+}
+
 .md-typeset a {
-    color: #00a3c6;
+    color: #000;
+}
+
+.md-tabs__link {
+    color: #000;
+    font-weight: bold;
+}
+
+
+a.md-nav__item .md-nav__link {
+    color: #444;
+
 }
 
 .md-nav__item .md-nav__link--active {
-    color: #00a3c6;
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+.md-header {
+    color: #000;
 }
 
 .md-typeset {
