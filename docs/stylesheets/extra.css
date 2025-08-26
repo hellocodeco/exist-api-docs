@@ -36,6 +36,10 @@ a.md-nav__item .md-nav__link {
     color: #000;
 }
 
+.md-content__inner a {
+    text-decoration: underline;
+}
+
 .md-typeset {
     
     --md-code-hl-number-color: #ffa551;
