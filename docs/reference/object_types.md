@@ -290,9 +290,14 @@ Name                | Group        | Value type description         | Value type
 `mobile_screen_min`     | Media        | Period (minutes as integer)                        | `3`
 `gaming_min`     | Media        | Period (minutes as integer)                        | `3`
 `tv_min`     | Media        | Period (minutes as integer)                        | `3`
+`movies_min` | Media        | Period (minutes as integer)                        | `3`
 `facebook_posts`    | Social       | Integer                        | `0`
 `facebook_comments` | Social       | Integer                        | `0`
 `facebook_reactions`| Social       | Integer                        | `0`
+`mastodon_posts`    | Social       | Integer                        | `0`
+`mastodon_replies`  | Social       | Integer                        | `0`
+`mastodon_boosts`   | Social       | Integer                        | `0`
+`mastodon_favourites` | Social     | Integer                        | `0`
 `tweets`            | Twitter      | Integer                        | `0`
 `twitter_mentions`  | Twitter      | Integer                        | `0`
 `twitter_username`  | Twitter      | String                         | `2`
