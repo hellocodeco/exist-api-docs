@@ -36,6 +36,8 @@ Be responsible and request as few scopes as required to provide your necessary f
 | `media_read` | Media group |
 | `social_read` | Social group |
 | `weather_read` | Weather group |
+| `symptoms_read` | Symptoms group |
+| `medication_read` | Medication group |
 | `custom_read` | Custom tags group |
 | `manual_read` | Read any manually tracked attribute |
 | **Write scopes** | |
@@ -53,6 +55,8 @@ Be responsible and request as few scopes as required to provide your necessary f
 | `social_write` | Social group |
 | `weather_write` | Weather group |
 | `custom_write` | Custom tags group |
+| `symptoms_write` | Symptoms group |
+| `medication_write` | Medication group |
 | `manual_write` | Write any manually tracked attribute |
 
 
