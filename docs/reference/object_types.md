@@ -244,7 +244,7 @@ Name                | Group        | Value type description         | Value type
 `emails_sent`       | Productivity | Integer                        | `0`
 `emails_received`   | Productivity | Integer                        | `0`
 `pomodoros_min` | Productivity | Period (minutes as integer) | `3`
-`keystrokes` | Productivity | Period (minutes as integer) | `3`
+`keystrokes` | Productivity | Integer | `0`
 `coffees`           | Food and drink | Integer                      | `0`
 `alcoholic_drinks`  | Food and drink | Integer                      | `0`
 `energy`            | Food and drink | Float (kJ)                   | `1`
