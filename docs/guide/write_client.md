@@ -287,7 +287,7 @@ On the other hand, let's imagine we're writing a client for updating manually en
 
 ### Releasing attributes
 
-If we don't want to own an attribute any more, we can release it too. This will give up ownership to another service the user has connected that can fill it, or otherwise disable the attribute. The release call looks just like acquiring, except we send our array of JSON objects to `https://exist.io/api/2/attributes/release/`.
+If we don't want to own an attribute any more, we can release it too. This will give up ownership to another service the user has connected that can fill it, or otherwise disable the attribute. The release call looks just like acquiring, except we use the `name` key (even if we used `template` to acquire the attribute) and we send our array of JSON objects to `https://exist.io/api/2/attributes/release/`.
 
 ## Creating a new attribute
 
